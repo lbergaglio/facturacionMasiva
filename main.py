@@ -12,19 +12,6 @@ def generar_archivo():
     # Lógica de generación (a completar)
     messagebox.showinfo("Éxito", "¡Archivo generado!")
 
-root = tk.Tk()
-root.title("App Automatización de Facturas")
-root.geometry("800x350")
-root.configure(bg="#242c50")
-
-# ------------------ Logo ------------------
-imagen_original = Image.open("logo_eana.png")
-imagen_redimensionada = imagen_original.resize((450, 50))
-imagen_tk = ImageTk.PhotoImage(imagen_redimensionada)
-
-label_imagen = tk.Label(root, image=imagen_tk, bg="#242c50")
-label_imagen.pack(pady=10)
-
 # ---------- Función para crear filas ----------
 def crear_fila(root, texto_titulo):
     frame = tk.Frame(root, bg="#242c50")
@@ -40,6 +27,19 @@ def crear_fila(root, texto_titulo):
     boton.pack(side="left", padx=5)
     
     return label_ruta
+
+root = tk.Tk()
+root.title("App Automatización de Facturas")
+root.geometry("800x350")
+root.configure(bg="#242c50")
+
+# ------------------ Logo ------------------
+imagen_original = Image.open("logo_eana.png")
+imagen_redimensionada = imagen_original.resize((450, 50))
+imagen_tk = ImageTk.PhotoImage(imagen_redimensionada)
+
+label_imagen = tk.Label(root, image=imagen_tk, bg="#242c50")
+label_imagen.pack(pady=10)
 
 # ---------- Crear filas de carga ----------
 label_liq_dom_pbi = crear_fila(root, "Liquidaciones domésticas PBI:")
