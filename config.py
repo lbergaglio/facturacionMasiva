@@ -9,3 +9,5 @@ labels_titulos = {
 COLOR_FONDO = "#242c50"
 COLOR_BOTON = "#27ae60"
 COLOR_TEXTO = "#ffffff"
+
+DIMENSION_GRAFICA = "800x450"

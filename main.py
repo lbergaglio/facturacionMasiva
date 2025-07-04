@@ -1,13 +1,13 @@
 # main.py
 import tkinter as tk
 from PIL import Image, ImageTk
-from config import COLOR_FONDO, COLOR_BOTON
+from config import COLOR_FONDO, COLOR_BOTON, DIMENSION_GRAFICA
 from gui_components import crear_fila
 from logic import validar_y_generar
 
 root = tk.Tk()
 root.title("App Automatización de Facturas")
-root.geometry("800x450")
+root.geometry(DIMENSION_GRAFICA)
 root.configure(bg=COLOR_FONDO)
 
 # Logo
