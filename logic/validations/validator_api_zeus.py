@@ -1,54 +1,55 @@
-##PARA CONECTARSE AL SERVICIO DE API
-
-import requests
-
-# Reemplazar mis datos
-auth_url = "https://auth.infosis.tech/authenticate?username=lbergaglio@eana.com.ar&password=Turn0T3c2024#"
-
-# Hago el POST
-auth_response = requests.post(auth_url)
-
-# Evaluo la respuesta
-if auth_response.status_code == 200:
-    access_token = auth_response.json()["access_token"]
-    print("✅ Token generado correctamente.")
-else:
-    raise Exception("❌ Error al generar token: " + auth_response.text)
-
-
-##PARA CONSULTAR CLIENTES Y CONVERTIRLO A UN CSV (Incluye tmb lo de arriba, pueden correr esta parte sola):
-
 import requests
 import pandas as pd
 
-# === Paso 1: Autenticación (ACA PONER LOS DATOS CORRECTOS)===
-auth_url = "https://auth.infosis.tech/authenticate?username=lbergaglio@eana.com.ar&password=Turn0T3c2024#"
-auth_response = requests.post(auth_url)
+# === Paso 1: Autenticación correcta ===
+def obtener_token_zeus(usuario: str, password: str) -> str:
+    url = "https://auth.infosis.tech/authenticate"
+    payload = {"username": usuario, "password": password}
+    headers = {"Content-Type": "application/json"}
 
-if auth_response.status_code == 200:
-    access_token = auth_response.json()["access_token"]
-    print("✅ Token generado correctamente.")
-else:
-    raise Exception("❌ Error al generar token: " + auth_response.text)
+    print("🔐 Enviando solicitud de autenticación...")
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"❌ Error de conexión al autenticarse: {e}")
 
-# === Paso 2: Consulta al endpoint /cliente ===
-headers = {"Authorization": f"Bearer {access_token}"}
-endpoint = "/cliente"
-base_url = "https://api.infosis.tech/zeus"
-url = f"{base_url}{endpoint}"
+    json_resp = response.json()
+    if "access_token" in json_resp:
+        print("✅ Token generado correctamente.")
+        return json_resp["access_token"]
+    else:
+        raise Exception(f"❌ Error en respuesta: {json_resp.get('message', 'Sin mensaje')}")
 
-print(f"🔸 Consultando {url}")
-try:
-    resp = requests.get(url, headers=headers)
-    resp.raise_for_status()
-    data = resp.json()
+# === Paso 2: Consulta de clientes ===
+def consultar_clientes_zeus(token: str) -> pd.DataFrame:
+    headers = {"Authorization": f"Bearer {token}"}
+    url = "https://api.infosis.tech/zeus/cliente"
 
+    print(f"🔸 Consultando endpoint: {url}")
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"❌ Error al consultar clientes: {e}")
+
+    data = response.json()
     if isinstance(data, list) and data:
         df = pd.json_normalize(data)
-        df.to_excel("clientes_zeus_data.xlsx", index=False)
-        print("✅ Archivo 'cliente_zeus_data.xlsx' creado correctamente.")
+        print(f"✅ {len(df)} clientes obtenidos correctamente.")
+        return df
     else:
-        print(f"⚠️ No hay datos en {endpoint}, o la respuesta no es una lista.")
+        print("⚠️ Respuesta vacía o malformada.")
+        return pd.DataFrame()
 
-except Exception as e:
-    print(f"❌ Error al consultar {endpoint}: {e}")
+# === Ejemplo de uso ===
+if __name__ == "__main__":
+    usuario = "-"
+    password = "-"  # CUIDADO si esto lo vas a subir a GitHub o compartir
+    try:
+        token = obtener_token_zeus(usuario, password)
+        df_clientes = consultar_clientes_zeus(token)
+        df_clientes.to_excel("clientes_zeus_data.xlsx", index=False)
+        print("📁 Archivo exportado: clientes_zeus_data.xlsx")
+    except Exception as e:
+        print(e)
