@@ -2,6 +2,14 @@
 from tkinter import messagebox
 from config import labels_titulos
 from gui_components import archivos_cargados
+from validations import validar_headers_excel
+
+TIPO_MAPEO = {
+    "liq_dom_pbi": "powerbi_domestico",
+    "liq_int_pbi": "powerbi_internacional",
+    "clients_pbi": "clientes_maestros",
+    "liq_arms": "liquidaciones_arms"
+}
 
 def validar_y_generar(tipo_cambio_str):
     faltantes = [k for k, v in archivos_cargados.items() if v is None]
@@ -20,6 +28,13 @@ def validar_y_generar(tipo_cambio_str):
         mensaje = "Faltan cargar los siguientes archivos:\n"
         mensaje += "\n".join(f"- {labels_titulos[k]}" for k in faltantes)
         messagebox.showwarning("Archivos faltantes", mensaje)
-    else:
-        # Lógica de generación real
-        messagebox.showinfo("Éxito", f"¡Generando archivo!\nTipo de cambio: {tipo_cambio_float}")
+        return
+    
+    for tipo_gui, archivo in archivos_cargados.items():
+        if archivo:
+            tipo_validacion = TIPO_MAPEO.get(tipo_gui, tipo_gui)
+            valido, mensaje = validar_headers_excel(archivo, tipo_validacion)
+            if not valido:
+                messagebox.showerror("Error de validación", f"{labels_titulos[tipo_gui]}: {mensaje}")
+                return
+    messagebox.showinfo("Éxito", f"¡Generando archivo!\nTipo de cambio: {tipo_cambio_float}")

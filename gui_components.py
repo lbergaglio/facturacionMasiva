@@ -5,8 +5,8 @@ from config import labels_titulos
 archivos_cargados = {k: None for k in labels_titulos.keys()}
 
 def cargar_archivo(label_destino, clave):
-    ruta = filedialog.askopenfilename(filetypes=[("Archivos Excel", "*.xls *.xlsx")])
-    if ruta and ruta.lower().endswith((".xls", ".xlsx")):
+    ruta = filedialog.askopenfilename(filetypes=[("Archivos Excel", "*.xls *.xlsx"),("Archivos CSV", "*.csv")])
+    if ruta and ruta.lower().endswith((".xls", ".xlsx", ".csv")):
         label_destino.config(text=ruta)
         archivos_cargados[clave] = ruta
     else:

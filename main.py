@@ -1,17 +1,20 @@
 # main.py
 import tkinter as tk
 from PIL import Image, ImageTk
-from config import COLOR_FONDO, COLOR_BOTON, DIMENSION_GRAFICA
+from config import COLOR_FONDO, COLOR_BOTON, DIMENSION_GRAFICA, TITULO_APP, URL_LOGO, URL_ICONO, DIMENSION_ICONO_ALTO, DIMENSION_ICONO_ANCHO, DIMENSION_LOGO_ALTO, DIMENSION_LOGO_ANCHO
 from gui_components import crear_fila
 from logic import validar_y_generar
 
 root = tk.Tk()
-root.title("App Automatización de Facturas")
+root.title(TITULO_APP)
 root.geometry(DIMENSION_GRAFICA)
 root.configure(bg=COLOR_FONDO)
 
-# Logo
-imagen = Image.open("assets/logo_eana.png").resize((450, 50))
+# Logo e icono
+root.resizable(False, False)
+imagen = Image.open(URL_LOGO).resize((DIMENSION_LOGO_ANCHO, DIMENSION_LOGO_ALTO))
+icono = Image.open(URL_ICONO).resize((DIMENSION_ICONO_ANCHO, DIMENSION_ICONO_ALTO))
+root.iconphoto(False, ImageTk.PhotoImage(icono))
 imagen_tk = ImageTk.PhotoImage(imagen)
 tk.Label(root, image=imagen_tk, bg=COLOR_FONDO).pack(pady=10)
 
