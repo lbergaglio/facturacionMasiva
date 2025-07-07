@@ -1,8 +1,7 @@
-# logic.py
 from tkinter import messagebox
-from config import labels_titulos
-from gui_components import archivos_cargados
-from validations import validar_headers_excel
+from config.settings import labels_titulos
+from gui.components import archivos_cargados
+from logic.validations.validator_main import validar_headers_excel
 
 TIPO_MAPEO = {
     "liq_dom_pbi": "powerbi_domestico",

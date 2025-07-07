@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
-from config import labels_titulos
+from config.settings import labels_titulos
 
 archivos_cargados = {k: None for k in labels_titulos.keys()}
 
