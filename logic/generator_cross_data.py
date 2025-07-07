@@ -39,13 +39,13 @@ def generar_control_interno(tipo_cambio):
 
     # Normalizar columna Tasa en función de Moneda y Concepto
     def convertir_tasa(row):
-        concepto = str(row['Concepto Facturado']).upper().strip()
+        tasa = str(row['Tasa']).upper().strip()
         moneda = str(row['Moneda de Liquidación']).upper().strip()
-        if "APOYO" in concepto:
+        if "APOYO" in tasa:
             return "AAI" if moneda == "USD" else "AAN"
-        elif "PROTECCION" in concepto:
+        elif "PROTECCION" in tasa:
             return "PVI" if moneda == "USD" else "PVN"
-        elif "SNA" in concepto or "SOBREVUELO" in concepto:
+        elif "SNA" in tasa or "SOBREVUELO" in tasa:
             return "EXTI" if moneda == "USD" else "EXT"
         else:
             return row['Tasa']  # valor original si no hay coincidencia
