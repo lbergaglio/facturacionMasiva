@@ -45,7 +45,7 @@ def consultar_clientes_zeus(token: str) -> pd.DataFrame:
 
 # === Ejemplo de uso ===
 if __name__ == "__main__":
-    usuario = input("Ingrese usuario: ")
+    usuario = input("Ingrese usuario: ") 
     password = getpass.getpass("Ingrese contraseña: ")
     try:
         token = obtener_token_zeus(usuario, password)
