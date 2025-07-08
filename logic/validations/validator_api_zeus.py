@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import getpass
 
 # === Paso 1: Autenticación correcta ===
 def obtener_token_zeus(usuario: str, password: str) -> str:
@@ -44,8 +45,8 @@ def consultar_clientes_zeus(token: str) -> pd.DataFrame:
 
 # === Ejemplo de uso ===
 if __name__ == "__main__":
-    usuario = "-"
-    password = "-"  # CUIDADO si esto lo vas a subir a GitHub o compartir
+    usuario = input("Ingrese usuario: ")
+    password = getpass.getpass("Ingrese contraseña: ")
     try:
         token = obtener_token_zeus(usuario, password)
         df_clientes = consultar_clientes_zeus(token)

@@ -13,7 +13,7 @@ TIPO_MAPEO = {
 
 # Columnas esperadas para la hoja 'total'
 COLUMNAS_TOTAL = [
-    'nro Liquidacion', 'Fecha de Liquidación', 'Período de Liquidación', 'Cliente', 'Tipo Cliente',
+    'Número de Liquidacion', 'Fecha de Liquidación', 'Período de Liquidación', 'Cliente', 'Tipo Cliente',
     'Tipo de Factura', 'Concepto Facturado', 'Número', 'Moneda de Liquidación',
     'Tasa', 'Servicios', 'Monto', 'Km', 'id'
 ]
@@ -30,8 +30,8 @@ def generar_control_interno(tipo_cambio):
     # Unimos las liquidaciones domésticas e internacionales
     df_liq = pd.concat([df_dom, df_int], ignore_index=True)
 
-    # Crear columna 'nro Liquidacion' como duplicado de 'Número'
-    df_liq['nro Liquidacion'] = df_liq['Número']
+    # Crear columna 'Número de Liquidacion' como duplicado de 'Número'
+    df_liq['Número de Liquidacion'] = df_liq['Número']
 
     # Aseguramos que 'id' provenga de df_liq original (no de clientes)
     if 'id' not in df_liq.columns:
@@ -54,15 +54,22 @@ def generar_control_interno(tipo_cambio):
 
     # Reordenamos y renombramos para hoja 'total'
     columnas_finales = [
-        'nro Liquidacion', 'Fecha de Liquidación', 'Período de Liquidación', 'Cliente', 'Tipo Cliente',
+        'Número de Liquidacion', 'Fecha de Liquidación', 'Período de Liquidación', 'Cliente', 'Tipo Cliente',
         'Tipo de Factura', 'Concepto Facturado', 'Número', 'Moneda de Liquidación',
         'Tasa', 'Servicios', 'Monto', 'Km', 'id'
     ]
 
     df_total = df_liq[columnas_finales].copy()
 
-    # Ordenar por nro Liquidacion
-    df_total.sort_values(by='nro Liquidacion', inplace=True)
+    # Se cambia la fecha y hora por la fecha solamente, en formato ddmmaaaa
+    df_total['Fecha de Liquidación'] = pd.to_datetime(df_total['Fecha de Liquidación'], errors='coerce')
+    df_total['Período de Liquidación'] = pd.to_datetime(df_total['Período de Liquidación'], errors='coerce')
+    df_total = df_total.dropna(subset=['Fecha de Liquidación', 'Período de Liquidación'])
+    df_total['Fecha de Liquidación'] = df_total['Fecha de Liquidación'].dt.strftime('%d/%m/%Y')
+    df_total['Período de Liquidación'] = df_total['Período de Liquidación'].dt.strftime('%d/%m/%Y')
+
+    # Ordenar por Número de Liquidacion
+    df_total.sort_values(by='Número de Liquidacion', inplace=True)
 
     # Generar nombre de archivo y guardar
     fecha_str = datetime.now().strftime("%Y-%m-%d")
@@ -70,5 +77,4 @@ def generar_control_interno(tipo_cambio):
     path_salida = f"salida/control_interno_{fecha_str}.xlsx"
     df_total.to_excel(path_salida, index=False, sheet_name="total")
 
-    return path_salida,df_total
-
+    return path_salida, df_total

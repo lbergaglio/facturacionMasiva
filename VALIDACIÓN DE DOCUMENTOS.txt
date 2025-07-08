@@ -1,0 +1,15 @@
+VALIDACIÓN DE DOCUMENTOS:
+
+- Por estructura o headers:
+	+ Liquidaciones PowerBI Doméstico:
+		Fecha de Liquidación, Período de Liquidación, Cliente, Tipo Cliente, Tipo de Factura, Concepto Facturado, Número, Moneda de Liquidación(ARS), Tasa, Servicios, Monto, Km, id
+	
+	+ Liquidaciones PowerBI Internacionales:
+		Fecha de Liquidación, Período de Liquidación, Cliente, Tipo Cliente, Tipo de Factura, Concepto Facturado, Número, Moneda de Liquidación(USD), Tasa, Servicios, Monto, Km, id
+
+	+ Clientes Maestros:
+		name, icao_code, iata_code, alias, aviation_billing_contact_person_name, aviation_billing_phone_number, aviation_billing_mailing_address, aviation_billing_email_address, account_type, nationality, aircraft_parking_exemption, active, approved_flight_school_indicator, aviation_billing_sms_number, black_listed_indicator, black_listed_override, cash_account, created_at, created_by, credit_limit, discount_structure, iata_member, id, invoice_currency, invoice_delivery_format, invoice_delivery_method, is_self_care, monthly_overdue_penalty_rate, non_aviation_billing_contact_person_name, non_aviation_billing_email_address, non_aviation_billing_mailing_address, non_aviation_billing_phone_number, non_aviation_billing_sms_number, notes, opr_identifier, payment_terms, percentage_of_passenger_fee_payable, separate_pax_invoice, tax_profile, updated_at, updated_by, version
+
+
+	+ Liquidaciones ARMS:
+		Account, Tipo, Invoice Number, Invoice Date, Invoice Type, Status, Payment Due Date, Created By, Invoice Amount, Invoice Currency, Exchange Rate To USD, Invoice Date Of Issue, Proforma, Exported, Billing Centre
