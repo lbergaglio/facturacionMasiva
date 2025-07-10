@@ -2,10 +2,8 @@ import pandas as pd
 import tkinter.messagebox as messagebox
 from gui.components import archivos_cargados
 
-def validar_y_comparar_con_arms(df_total_per_liq):
+def validar_y_comparar_con_arms(df_total_per_liq,df_arms_original):
     try:
-        df_arms_original = pd.read_csv(archivos_cargados['liq_arms'])
-
         # === Renombrar columnas del archivo generado para coincidir con ARMS ===
         df_total_per_liq_comparacion = df_total_per_liq.copy()
         df_total_per_liq_comparacion.columns = [
@@ -76,12 +74,12 @@ def validar_y_comparar_con_arms(df_total_per_liq):
                 ]
             })
             diff_path = f"salida/diferencias_con_arms.xlsx"
-            df_diff.to_excel(diff_path, index=False)
             messagebox.showwarning("Advertencia", f"❌ El archivo generado no coincide con el archivo ARMS. Revisar diferencias: {diff_path}")
+            return df_diff
         else:
             messagebox.showinfo("Validación exitosa", "✅ El archivo generado coincide exactamente con el archivo ARMS.")
 
     except Exception as e:
         messagebox.showwarning("Advertencia", f"No se pudo comparar con el archivo ARMS: {e}")
 
-    return 
+    return pd.DataFrame()  # Retorna un DataFrame vacío si no hay diferencias

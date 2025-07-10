@@ -31,22 +31,24 @@ def generar_control_interno(tipo_cambio):
      # === Lectura de archivos de entrada ===
     try:
         df_dom, df_int, df_clients, df_arms = cargar_archivos()
+        # === Generación de la hoja "total" del archivo de control interno ===
+        df_total = generar_page_total(df_dom, df_int, COLUMNAS_TOTAL)
+
+        # === Generación de la hoja "total por liquidación" del archivo de control interno ===
+        df_total_per_liq = generar_page_total_per_liq(df_total, tipo_cambio)
+
+        # === VALIDACIÓN CONTRA ARCHIVO ARMS ===
+        df_diff_arms = validar_y_comparar_con_arms(df_total_per_liq,df_arms)
+        
+        # === Exportar archivo Excel final con ambas hojas ===}
+        return exportar_control_interno(df_total, df_total_per_liq,df_diff_arms,PATH_SALIDA)
+
     except Exception as e:
         raise RuntimeError(f"Error al leer los archivos: {e}")
     
-    # === Generación de la hoja "total" del archivo de control interno ===
-    df_total = generar_page_total(df_dom, df_int, COLUMNAS_TOTAL)
-
-    # === Generación de la hoja "total por liquidación" del archivo de control interno ===
-    df_total_per_liq = generar_page_total_per_liq(df_total, tipo_cambio)
-
-    # === VALIDACIÓN CONTRA ARCHIVO ARMS ===
-    validar_y_comparar_con_arms(df_total_per_liq)
     
-    # === Exportar archivo Excel final con ambas hojas ===}
-    path_salida = PATH_SALIDA
    
-    return exportar_control_interno(df_total, df_total_per_liq,path_salida)
+    
     
     
     
