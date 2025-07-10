@@ -2,9 +2,10 @@ import pandas as pd
 import os
 from datetime import datetime
 from gui.components import archivos_cargados
-#from parse_inputs import cargar_archivos
-from logic.validators.validator_main import normalizar_headers
+from logic.parse_inputs import cargar_archivos
+#from logic.validators.validator_main import normalizar_headers
 import tkinter.messagebox as messagebox
+from logic.exporter import exportar_control_interno
 
 # Mapeo para los nombres de los archivos cargados
 TIPO_MAPEO = {
@@ -22,12 +23,9 @@ COLUMNAS_TOTAL = [
 ]
 
 def generar_control_interno(tipo_cambio):
+     # === Lectura de archivos de entrada ===
     try:
-        # === Lectura de archivos de entrada ===
-        df_dom = pd.read_excel(archivos_cargados['liq_dom_pbi'])
-        df_int = pd.read_excel(archivos_cargados['liq_int_pbi'])
-        df_arms = pd.read_excel(archivos_cargados['liq_arms']) if archivos_cargados['liq_arms'].endswith(".xlsx") else pd.read_csv(archivos_cargados['liq_arms'])
-        df_clients = pd.read_excel(archivos_cargados['clients_pbi'])
+        df_dom, df_int, df_clients, df_arms = cargar_archivos()
     except Exception as e:
         raise RuntimeError(f"Error al leer los archivos: {e}")
 
@@ -107,10 +105,17 @@ def generar_control_interno(tipo_cambio):
             'Invoice Date Of Issue', 'Proforma', 'Exported', 'Billing Centre'
         ]
         
+        # === Excluir de la validación los registros Non-Aviation ===
+        df_final_comparacion = df_final_comparacion[df_final_comparacion['Invoice Type'].str.upper() != 'NON-AVIATION']
+
         # === Eliminar columna "Created By" para la comparación ===
         df_final_comparacion.drop(columns=['Created By'], inplace=True)
         if 'Created By' in df_arms_original.columns:
             df_arms_original.drop(columns=['Created By'], inplace=True)
+        
+        df_final_comparacion.drop(columns=['Exchange Rate To USD'], inplace=True)
+        if 'Exchange Rate To USD' in df_arms_original.columns:
+            df_arms_original.drop(columns=['Exchange Rate To USD'], inplace=True)
 
         # === Convertir fechas a datetime.date para ambos ===
         fecha_cols = ['Invoice Date', 'Payment Due Date', 'Invoice Date Of Issue']
@@ -171,7 +176,8 @@ def generar_control_interno(tipo_cambio):
         messagebox.showwarning("Advertencia", f"No se pudo comparar con el archivo ARMS: {e}")
 
 
-    # === Exportar archivo Excel final con ambas hojas ===
+    # === Exportar archivo Excel final con ambas hojas ===}
+    #exportar_control_interno(df_total, df_final)
     fecha_str = datetime.now().strftime("%Y-%m-%d")
     os.makedirs("salida", exist_ok=True)
     path_salida = f"salida/control_interno_{fecha_str}.xlsx"
@@ -198,3 +204,5 @@ def generar_control_interno(tipo_cambio):
                 ws_final.cell(row=row, column=col_idx).number_format = 'DD/MM/YYYY'
 
     return path_salida, df_total
+    
+    
