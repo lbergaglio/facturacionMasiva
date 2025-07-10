@@ -1,7 +1,7 @@
 import pandas as pd
 
 # === Agrupación por número de liquidación ===
-def generar_page_total_per_liq(df_total, tipo_cambio):
+def generate_page_total_per_liq(df_total, tipo_cambio):
     
     df_agrupado = df_total.groupby("Número de Liquidacion").agg({
         'Monto': 'sum',
