@@ -3,10 +3,9 @@ import pandas as pd
 import openpyxl
 from datetime import datetime
 
-def exportar_control_interno(df_total, df_final):
+def exportar_control_interno(df_total, df_final,path_salida):
     fecha_str = datetime.now().strftime("%Y-%m-%d")
     os.makedirs("salida", exist_ok=True)
-    path_salida = f"salida/control_interno_{fecha_str}.xlsx"
 
     with pd.ExcelWriter(path_salida, engine='openpyxl', datetime_format='DD/MM/YYYY') as writer:
         df_total.to_excel(writer, index=False, sheet_name="total")
