@@ -1,7 +1,7 @@
 from tkinter import messagebox
 from config.settings import labels_titulos
 from gui.components import archivos_cargados
-from logic.validations.validator_main import validar_headers_excel
+from logic.validators.validator_main import validar_headers_excel
 from logic.generator_cross_data import generar_control_interno  # importa el generador
 
 TIPO_MAPEO = {
