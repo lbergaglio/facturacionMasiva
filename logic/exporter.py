@@ -20,7 +20,9 @@ def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_diff_arm
     # --- LIMPIEZA GENERAL DE df_balance ---
     df_balance_export = df_balance.reset_index()
     df_balance_export.columns = [str(c).strip() for c in df_balance_export.columns]
-    df_balance_export = df_balance_export.applymap(lambda x: x if pd.api.types.is_numeric_dtype(type(x)) else str(x))
+    df_balance_export = df_balance_export.applymap(
+        lambda x: x if isinstance(x, (int, float)) or pd.isna(x) else str(x)
+    )
 
     with pd.ExcelWriter(path_salida, engine='openpyxl', datetime_format='DD/MM/YYYY') as writer:
         # Hoja 1
@@ -28,7 +30,7 @@ def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_diff_arm
         # Hoja 2
         df_total_per_liq.to_excel(writer, index=False, sheet_name="total agrupado por liquidacion")
         # Hoja 3
-        df_balance_export.to_excel(writer, index=False, sheet_name="TD LIQ - por Moneda y Tipo Cliente")
+        df_balance_export.to_excel(writer, index=False, sheet_name="TD LIQ")
 
         # --- FORMATO FECHA: total ---
         ws_total = writer.sheets["total"]
