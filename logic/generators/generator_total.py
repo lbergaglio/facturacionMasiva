@@ -9,7 +9,7 @@ def generate_page_total(df_dom, df_int, COLUMNAS_TOTAL):
         raise RuntimeError("La columna 'id' no está presente en los archivos de liquidaciones PBI.")
 
     # === Normalizar campo "Tasa" según moneda ===
-    def transforme_rate(row):
+    def transform_rate(row):
         tasa = str(row['Tasa']).upper().strip()
         moneda = str(row['Moneda de Liquidación']).upper().strip()
         if "APOYO" in tasa:
@@ -21,7 +21,7 @@ def generate_page_total(df_dom, df_int, COLUMNAS_TOTAL):
         else:
             return row['Tasa']
 
-    df_liq['Tasa'] = df_liq.apply(transforme_rate, axis=1)
+    df_liq['Tasa'] = df_liq.apply(transform_rate, axis=1)
 
     # === Generar hoja "total" ===
     df_total = df_liq[COLUMNAS_TOTAL].copy()

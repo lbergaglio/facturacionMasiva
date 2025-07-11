@@ -8,7 +8,8 @@ from logic.exporter import exportar_control_interno
 from logic.generators.generator_total import generate_page_total
 from logic.generators.generator_total_per_liq import generate_page_total_per_liq
 from logic.validators.validator_arms import validar_y_comparar_con_arms
-from logic.generators.generator_balance_liq import generate_balance_liq
+from logic.generators.generator_balance_liq import generate_page_balance_liq
+from logic.generators.generator_summary import generate_page_summary
 
 # Ruta de salida para el archivo generado
 PATH_SALIDA = "salida/control_interno.xlsx"
@@ -42,10 +43,13 @@ def generar_control_interno(tipo_cambio):
         df_diff_arms = validar_y_comparar_con_arms(df_total_per_liq,df_arms)
 
         # === Generación de Balance de Liquidaciones por Moneda y Tipo de Cliente ===
-        df_balance = generate_balance_liq(df_total)
+        df_balance = generate_page_balance_liq(df_total)
+
+        # === Generación de Resumen de Facturación ===
+        df_summary = generate_page_summary(df_total)
         
         # === Exportar archivo Excel final con ambas hojas ===}
-        return exportar_control_interno(df_total, df_total_per_liq,df_balance,df_diff_arms,PATH_SALIDA)
+        return exportar_control_interno(df_total, df_total_per_liq,df_balance,df_summary,df_diff_arms,PATH_SALIDA)
 
     except Exception as e:
         raise RuntimeError(f"Error al leer los archivos: {e}")

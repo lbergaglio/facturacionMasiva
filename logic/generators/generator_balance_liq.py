@@ -1,7 +1,7 @@
 
 import pandas as pd
 
-def generate_balance_liq(df_total):
+def generate_page_balance_liq(df_total):
     # Verificar columnas necesarias
     required_cols = ['Moneda de Liquidación', 'Tipo Cliente', 'Monto']
     for col in required_cols:
@@ -19,8 +19,8 @@ def generate_balance_liq(df_total):
     )
 
     # Reordenar columnas si existen ambas monedas
-    moneda_cols = ['ARS', 'USD']
-    ordered_cols = [c for c in moneda_cols if c in df_balance.columns] + [c for c in df_balance.columns if c not in moneda_cols]
+    money_col = ['ARS', 'USD']
+    ordered_cols = [i for i in money_col if i in df_balance.columns] + [i for i in df_balance.columns if i not in money_col]
     df_balance = df_balance[ordered_cols]
 
     # Resetear el índice para evitar problemas en Excel
