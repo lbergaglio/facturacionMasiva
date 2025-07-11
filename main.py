@@ -1,4 +1,5 @@
 import tkinter as tk
+import time
 from PIL import Image, ImageTk
 from config.settings import COLOR_FONDO, COLOR_BOTON, DIMENSION_GRAFICA, TITULO_APP, URL_LOGO, URL_ICONO, DIMENSION_ICONO_ALTO, DIMENSION_ICONO_ANCHO, DIMENSION_LOGO_ALTO, DIMENSION_LOGO_ANCHO
 from gui.components import crear_fila
@@ -36,5 +37,34 @@ entry_tipo_cambio.pack(side="left", padx=5)
 btn_generar = tk.Button(root, text="Generar archivos", font=("Arial", 11, "bold"),
                         bg=COLOR_BOTON, fg="white", command=lambda: validar_y_generar(entry_tipo_cambio.get()))
 btn_generar.pack(pady=30)
+
+
+
+from tkinter import ttk
+import threading
+
+# Spinner (barra de progreso indeterminada)
+spinner = ttk.Progressbar(root, mode='indeterminate', length=200)
+spinner.pack(pady=5)
+spinner.stop()
+spinner.pack_forget()  # Ocultarlo al inicio
+
+# Función de envoltorio con spinner y threading
+def ejecutar_con_spinner():
+    def tarea():
+        try:
+            validar_y_generar(entry_tipo_cambio.get())
+        finally:
+            spinner.stop()
+            spinner.pack_forget()
+            btn_generar.config(state="normal")
+
+    spinner.pack(pady=5)
+    spinner.start()
+    btn_generar.config(state="disabled")
+    threading.Thread(target=tarea).start()
+
+# Reemplazar el command del botón
+btn_generar.config(command=ejecutar_con_spinner)
 
 root.mainloop()
