@@ -26,15 +26,15 @@ def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_summary,
 
     with pd.ExcelWriter(path_salida, engine='openpyxl', datetime_format='DD/MM/YYYY') as writer:
         # Hoja 1
-        df_total.to_excel(writer, index=False, sheet_name="Total")
+        df_total.to_excel(writer, index=False, sheet_name="total")
         # Hoja 2
-        df_total_per_liq.to_excel(writer, index=False, sheet_name="Total agrupado por liquidacion")
+        df_total_per_liq.to_excel(writer, index=False, sheet_name="total agrupado por liquidacion")
         # Hoja 3
         df_balance_export.to_excel(writer, index=False, sheet_name="TD LIQ")
         # Hoja 4
         df_summary.to_excel(writer, index=True, sheet_name="Resumen",merge_cells=True)
         # Hoja 5
-        #df_tesoreria.to_excel(writer, index=False, sheet_name="Tesoreria")
+        df_tesoreria.to_excel(writer, index=False, sheet_name="Tesoreria")
 
         # --- FORMATO FECHA: total ---
         ws_total = writer.sheets["total"]
