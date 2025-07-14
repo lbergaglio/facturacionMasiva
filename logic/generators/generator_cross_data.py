@@ -30,27 +30,33 @@ COLUMNAS_TOTAL = [
     'Tasa', 'Servicios', 'Monto', 'Km', 'id'
 ]
 
-def generar_control_interno(tipo_cambio):
+def generar_control_interno(tipo_cambio,callback_progress):
      # === Lectura de archivos de entrada ===
     try:
         df_dom, df_int, df_clients, df_arms = cargar_archivos()
         # === Generación de la hoja "total" del archivo de control interno ===
         df_total = generate_page_total(df_dom, df_int, COLUMNAS_TOTAL)
+        callback_progress("✅ Cruzando archivos... (30%)")
 
         # === Generación de la hoja "total por liquidación" del archivo de control interno ===
         df_total_per_liq = generate_page_total_per_liq(df_total, tipo_cambio)
+        callback_progress("✅ Cruzando archivos... (40%)")
 
         # === VALIDACIÓN CONTRA ARCHIVO ARMS ===
         df_diff_arms = validar_y_comparar_con_arms(df_total_per_liq,df_arms)
+        callback_progress("✅ Cruzando archivos... (55%)")
 
         # === Generación de Balance de Liquidaciones por Moneda y Tipo de Cliente ===
         df_balance = generate_page_balance_liq(df_total)
+        callback_progress("✅ Cruzando archivos... (70%)")
 
         # === Generación de Resumen de Facturación ===
         df_summary = generate_page_summary(df_total)
+        callback_progress("✅ Cruzando archivos... (85%)")
 
         # === Generación de Tesorería ===
         df_tesoreria = generate_page_tesoreria(df_total,df_clients)
+        callback_progress("✅ Cruzando archivos... (100%)")
         
         # === Exportar archivo Excel final con ambas hojas ===}
         return exportar_control_interno(df_total, df_total_per_liq,df_balance,df_summary,df_tesoreria,df_diff_arms,PATH_SALIDA)

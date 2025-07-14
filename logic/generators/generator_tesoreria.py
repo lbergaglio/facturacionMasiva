@@ -36,7 +36,9 @@ def generate_page_tesoreria(df_total, df_clients):
             'SNA INT': grupo.loc[grupo['tasa'] == 'EXTI', 'monto'].sum(),
             'EMISIÓN': grupo['fecha de liquidacion'].iloc[0],
             'SERVICIO': grupo['fecha de liquidacion'].iloc[0],
-            'ENVIO MAIL': ''
+            'ENVIO MAIL': '',
+            'FECHA DE VENCIMIENTO':'',
+            'ESTADO':'',
         }
         rows.append(fila)
 
@@ -47,7 +49,9 @@ def generate_page_tesoreria(df_total, df_clients):
         'AA DOM', 'AA INT',
         'PV DOM', 'PV INT',
         'SNA DOM', 'SNA INT',
-        'EMISIÓN', 'SERVICIO', 'ENVIO MAIL'
+        'EMISIÓN', 'SERVICIO', 
+        'ENVIO MAIL', 'FECHA DE VENCIMIENTO', 
+        'ESTADO'
     ]
     df_resultado = df_resultado[columnas]
 

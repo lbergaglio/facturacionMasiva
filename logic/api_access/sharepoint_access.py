@@ -38,7 +38,7 @@ if ctx_auth.acquire_token_for_user(username, password):
     # === CONVERTIR A DATAFRAME Y MOSTRAR ===
     df = pd.DataFrame(datos)
     print("📄 Fechas:")
-    print(df[["Liquidacion", "Fecha de Envio", "Fecha de Vencimiento"]])
+    print(df)
 
 else:
     print("❌ Error de autenticación")

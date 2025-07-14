@@ -41,23 +41,34 @@ btn_generar.pack(pady=30)
 from tkinter import ttk
 import threading
 
+# Label de texto de carga
+label_spinner = tk.Label(root, text="Procesando, por favor espere...", fg="white", bg=COLOR_FONDO, font=("Arial", 10, "italic"))
+label_spinner.pack()
+label_spinner.pack_forget()
+
 # Spinner (barra de progreso indeterminada)
 spinner = ttk.Progressbar(root, mode='indeterminate', length=200)
 spinner.pack(pady=5)
 spinner.stop()
 spinner.pack_forget()  # Ocultarlo al inicio
 
-# Función de envoltorio con spinner y threading
+def update_progress(texto):
+    label_spinner.config(text=texto)
+    label_spinner.update_idletasks()
+
+
 def ejecutar_con_spinner():
     def tarea():
         try:
-            validar_y_generar(entry_tipo_cambio.get())
+            validar_y_generar(entry_tipo_cambio.get(), callback_progress=update_progress)
         finally:
             spinner.stop()
             spinner.pack_forget()
+            label_spinner.pack_forget()
             btn_generar.config(state="normal")
 
     spinner.pack(pady=5)
+    label_spinner.pack()
     spinner.start()
     btn_generar.config(state="disabled")
     threading.Thread(target=tarea).start()
