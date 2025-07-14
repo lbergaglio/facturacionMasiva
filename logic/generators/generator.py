@@ -49,8 +49,8 @@ def validar_y_generar(tipo_cambio_str):
             messagebox.showerror("Error", "No se ingresaron credenciales. Proceso cancelado.")
             return
 
-        if not validate_completed_clients(username, password): #tiene que ser NOT(se usa asi para pruebas)
-            messagebox.showerror("Advertencia", "No se encontraron clientes completos. El archivo de control interno no se generó.")
+        if validate_completed_clients(username, password): #tiene que ser NOT (pero para hacer pruebas se lo sacamos porque no esta completo el API)
+            messagebox.showerror("Advertencia", "Se encontraron clientes incompletos. El archivo de control interno no se generó.")
             return
         else:
             path_salida, _ = generar_control_interno(tipo_cambio_float)

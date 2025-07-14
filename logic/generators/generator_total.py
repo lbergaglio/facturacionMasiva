@@ -28,7 +28,7 @@ def generate_page_total(df_dom, df_int, COLUMNAS_TOTAL):
     # === Generar hoja "total" ===
     df_total = df_liq[COLUMNAS_TOTAL].copy()
     df_total = df_total[df_total["Tipo Cliente"] != "8"]
-    df_total = df_total[df_total["Tipo de Factura"] != "non-aviation"]
+    df_total = df_total[~df_total["Tipo de Factura"].isin(["non-aviation", "unified-tax"])]
     df_total['Fecha de Liquidación'] = pd.to_datetime(df_total['Fecha de Liquidación'], errors='coerce').dt.strftime('%d/%m/%Y')
     df_total['Período de Liquidación'] = pd.to_datetime(df_total['Período de Liquidación'], errors='coerce').dt.strftime('%d/%m/%Y')
     df_total.dropna(subset=['Fecha de Liquidación', 'Período de Liquidación'], inplace=True)
