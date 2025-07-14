@@ -38,8 +38,6 @@ btn_generar = tk.Button(root, text="Generar archivos", font=("Arial", 11, "bold"
                         bg=COLOR_BOTON, fg="white", command=lambda: validar_y_generar(entry_tipo_cambio.get()))
 btn_generar.pack(pady=30)
 
-
-
 from tkinter import ttk
 import threading
 

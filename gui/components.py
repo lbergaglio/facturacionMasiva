@@ -1,8 +1,42 @@
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 from config.settings import labels_titulos
 
 archivos_cargados = {k: None for k in labels_titulos.keys()}
+
+def solicitar_credenciales_api():
+    ventana = tk.Toplevel()
+    ventana.title("Autenticación Zeus API")
+    ventana.geometry("300x170")
+    ventana.resizable(False, False)
+    ventana.grab_set()  # bloquea interacción con la ventana principal
+
+    tk.Label(ventana, text="Usuario:").pack(pady=(10, 0))
+    entry_user = tk.Entry(ventana, width=30)
+    entry_user.pack()
+
+    tk.Label(ventana, text="Contraseña:").pack(pady=5)
+    entry_pass = tk.Entry(ventana, width=30, show="*")
+    entry_pass.pack()
+
+    resultado = {"usuario": None, "contraseña": None}
+
+    def confirmar():
+        user = entry_user.get().strip()
+        pw = entry_pass.get().strip()
+        if not user or not pw:
+            messagebox.showwarning("Faltan datos", "Debe ingresar usuario y contraseña.")
+        else:
+            resultado["usuario"] = user
+            resultado["contraseña"] = pw
+            ventana.destroy()
+
+    tk.Button(ventana, text="Aceptar", command=confirmar).pack(pady=10)
+    ventana.wait_window()  # espera a que la ventana se cierre
+
+    return resultado["usuario"], resultado["contraseña"]
+
 
 def cargar_archivo(label_destino, clave):
     ruta = filedialog.askopenfilename(filetypes=[("Archivos Excel", "*.xls *.xlsx"),("Archivos CSV", "*.csv")])

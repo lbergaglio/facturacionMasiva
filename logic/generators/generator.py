@@ -1,8 +1,10 @@
 from tkinter import messagebox
 from config.settings import labels_titulos
-from gui.components import archivos_cargados
+from gui.components import archivos_cargados, solicitar_credenciales_api
 from logic.validators.validator_main import validar_headers_excel
+from logic.validators.validator_api_zeus import validate_completed_clients
 from logic.generators.generator_cross_data import generar_control_interno  # importa el generador
+import tkinter as tk
 
 TIPO_MAPEO = {
     "liq_dom_pbi": "powerbi_domestico",
@@ -40,8 +42,19 @@ def validar_y_generar(tipo_cambio_str):
                 return
     
     # Generación del archivo de control interno
+    # Generación del archivo de control interno
     try:
-        path_salida, _ = generar_control_interno(tipo_cambio_float)
-        messagebox.showinfo("Éxito", f"Archivo de control interno generado:\n{path_salida}")
+        username, password = solicitar_credenciales_api()
+        if not username or not password:
+            messagebox.showerror("Error", "No se ingresaron credenciales. Proceso cancelado.")
+            return
+
+        if not validate_completed_clients(username, password): #tiene que ser NOT(se usa asi para pruebas)
+            messagebox.showerror("Advertencia", "No se encontraron clientes completos. El archivo de control interno no se generó.")
+            return
+        else:
+            path_salida, _ = generar_control_interno(tipo_cambio_float)
+            messagebox.showinfo("Éxito", f"Archivo de control interno generado:\n{path_salida}")
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo generar el archivo de control interno:\n{str(e)}")
+
