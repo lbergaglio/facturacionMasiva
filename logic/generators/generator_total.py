@@ -1,15 +1,7 @@
 import pandas as pd
 
-# === Unificación de doméstico e internacional ===
-def generate_page_total(df_dom, df_int, COLUMNAS_TOTAL):
-    df_liq = pd.concat([df_dom, df_int], ignore_index=True)
-    df_liq['Número de Liquidacion'] = df_liq['Número']
-
-    if 'id' not in df_liq.columns:
-        raise RuntimeError("La columna 'id' no está presente en los archivos de liquidaciones PBI.")
-
-    # === Normalizar campo "Tasa" según moneda ===
-    def transform_rate(row):
+# === Normalizar campo "Tasa" según moneda ===
+def transform_rate(row):
         tasa = str(row['Tasa']).upper().strip()
         moneda = str(row['Moneda de Liquidación']).upper().strip()
         if "APOYO" in tasa:
@@ -21,13 +13,26 @@ def generate_page_total(df_dom, df_int, COLUMNAS_TOTAL):
         else:
             return row['Tasa']
 
+# === Unificación de doméstico e internacional ===
+def generate_page_total(df_dom, df_int, COLUMNAS_TOTAL):
+    df_liq = pd.concat([df_dom, df_int], ignore_index=True)
+    df_liq.columns = df_liq.columns.str.strip()
+    df_liq['Número de Liquidacion'] = df_liq['Número']
+
+    if 'id' not in df_liq.columns:
+        print(df_liq.columns)
+        raise RuntimeError("La columna 'id' no está presente en los archivos de liquidaciones PBI.")
+    
     df_liq['Tasa'] = df_liq.apply(transform_rate, axis=1)
 
     # === Generar hoja "total" ===
     df_total = df_liq[COLUMNAS_TOTAL].copy()
-    df_total['Fecha de Liquidación'] = pd.to_datetime(df_total['Fecha de Liquidación'], errors='coerce').dt.normalize()
-    df_total['Período de Liquidación'] = pd.to_datetime(df_total['Período de Liquidación'], errors='coerce').dt.normalize()
+    df_total = df_total[df_total["Tipo Cliente"] != "8"]
+    df_total = df_total[df_total["Tipo de Factura"] != "non-aviation"]
+    df_total['Fecha de Liquidación'] = pd.to_datetime(df_total['Fecha de Liquidación'], errors='coerce').dt.strftime('%d/%m/%Y')
+    df_total['Período de Liquidación'] = pd.to_datetime(df_total['Período de Liquidación'], errors='coerce').dt.strftime('%d/%m/%Y')
     df_total.dropna(subset=['Fecha de Liquidación', 'Período de Liquidación'], inplace=True)
     df_total.sort_values(by='Número de Liquidacion', inplace=True)
+    
 
     return df_total
