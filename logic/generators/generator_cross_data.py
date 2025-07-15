@@ -11,6 +11,8 @@ from logic.validators.validator_arms import validar_y_comparar_con_arms
 from logic.generators.generator_balance_liq import generate_page_balance_liq
 from logic.generators.generator_summary import generate_page_summary
 from logic.generators.generator_tesoreria import generate_page_tesoreria
+from logic.generators.generator_masive_import import generate_masive_import
+
 
 # Ruta de salida para el archivo generado
 PATH_SALIDA = "salida/control_interno.xlsx"
@@ -36,11 +38,11 @@ def generar_control_interno(tipo_cambio,callback_progress):
         df_dom, df_int, df_clients, df_arms = cargar_archivos()
         # === Generación de la hoja "total" del archivo de control interno ===
         df_total = generate_page_total(df_dom, df_int, COLUMNAS_TOTAL)
-        callback_progress("✅ Cruzando archivos... (30%)")
+        callback_progress("✅ Cruzando archivos... (45%)")
 
         # === Generación de la hoja "total por liquidación" del archivo de control interno ===
         df_total_per_liq = generate_page_total_per_liq(df_total, tipo_cambio)
-        callback_progress("✅ Cruzando archivos... (40%)")
+        callback_progress("✅ Cruzando archivos... (50%)")
 
         # === VALIDACIÓN CONTRA ARCHIVO ARMS ===
         df_diff_arms = validar_y_comparar_con_arms(df_total_per_liq,df_arms)
@@ -48,18 +50,22 @@ def generar_control_interno(tipo_cambio,callback_progress):
 
         # === Generación de Balance de Liquidaciones por Moneda y Tipo de Cliente ===
         df_balance = generate_page_balance_liq(df_total)
-        callback_progress("✅ Cruzando archivos... (70%)")
+        callback_progress("✅ Cruzando archivos... (65%)")
 
         # === Generación de Resumen de Facturación ===
         df_summary = generate_page_summary(df_total)
-        callback_progress("✅ Cruzando archivos... (85%)")
+        callback_progress("✅ Cruzando archivos... (75%)")
 
         # === Generación de Tesorería ===
         df_tesoreria = generate_page_tesoreria(df_total,df_clients)
-        callback_progress("✅ Cruzando archivos... (100%)")
+        callback_progress("✅ Cruzando archivos... (90%)")
+
+        # === Generación de Importación Masiva ===
+        df_masive_import = generate_masive_import(df_total, df_total_per_liq, df_clients, tipo_cambio)
+        callback_progress("✅ Cruzando archivos... (95%)")
         
         # === Exportar archivo Excel final con ambas hojas ===}
-        return exportar_control_interno(df_total, df_total_per_liq,df_balance,df_summary,df_tesoreria,df_diff_arms,PATH_SALIDA)
+        return exportar_control_interno(df_total, df_total_per_liq,df_balance,df_summary,df_tesoreria,df_diff_arms,df_masive_import,PATH_SALIDA)
 
     except Exception as e:
         raise RuntimeError(f"Error al leer los archivos: {e}")

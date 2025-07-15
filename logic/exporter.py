@@ -3,7 +3,7 @@ import pandas as pd
 import openpyxl
 from datetime import datetime
 
-def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_summary,df_tesoreria, df_diff_arms, path_salida):
+def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_summary,df_tesoreria, df_diff_arms,df_masive_import, path_salida):
     os.makedirs("salida", exist_ok=True)
 
     # Intentar borrar el archivo si ya existe
@@ -16,6 +16,8 @@ def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_summary,
     # Exportar diferencias con ARMS si hay
     if not df_diff_arms.empty:
         df_diff_arms.to_excel("salida/diferencias_con_arms.xlsx", index=False)
+    
+    df_masive_import.to_excel("salida/importacion_masiva.xlsx", index=False)
 
     # --- LIMPIEZA GENERAL DE df_balance ---
     df_balance_export = df_balance.reset_index()

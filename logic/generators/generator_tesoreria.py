@@ -37,8 +37,7 @@ def generate_page_tesoreria(df_total, df_clients):
             'EMISIÓN': grupo['fecha de liquidacion'].iloc[0],
             'SERVICIO': grupo['fecha de liquidacion'].iloc[0],
             'ENVIO MAIL': '',
-            'FECHA DE VENCIMIENTO':'',
-            'ESTADO':'',
+            'FECHA DE VENCIMIENTO':''
         }
         rows.append(fila)
 
@@ -50,8 +49,7 @@ def generate_page_tesoreria(df_total, df_clients):
         'PV DOM', 'PV INT',
         'SNA DOM', 'SNA INT',
         'EMISIÓN', 'SERVICIO', 
-        'ENVIO MAIL', 'FECHA DE VENCIMIENTO', 
-        'ESTADO'
+        'ENVIO MAIL', 'FECHA DE VENCIMIENTO'
     ]
     df_resultado = df_resultado[columnas]
 
