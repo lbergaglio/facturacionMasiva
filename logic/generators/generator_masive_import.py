@@ -25,45 +25,62 @@ def fecha_a_clarion(fecha: datetime) -> int:
 def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
     df_clientes_zeus, df_vendedores_zeus, df_parametros_zeus = get_dataframes_from_zeus()
 
-    # Normalizar columnas para evitar errores por espacios o mayúsculas
+    # Normalizar nombres de columnas
     for df in [df_total, df_total_per_liq, df_clients, df_clientes_zeus, df_vendedores_zeus, df_parametros_zeus]:
         df.columns = df.columns.str.strip().str.lower()
-        print(df.columns)
     
-
-
     # Validación de columnas necesarias
-    required_columns = {"número de factura", "centro de facturación"}
-    missing = required_columns - set(df_total_per_liq.columns)
+    required_columns_per_liq = {"número de factura", "centro de facturación"}
+    missing = required_columns_per_liq - set(df_total_per_liq.columns)
     if missing:
         raise ValueError(f"Faltan columnas necesarias en df_total_per_liq: {missing}")
-    
-    # Asignamos la tasa de cambio recibida a cada fila
+
+    # Asignar tasa de cambio
     df_total["tasa de cambio"] = tasa_cambio
-    
     if df_total[df_total["moneda de liquidacion"] == "USD"]["tasa de cambio"].isnull().any():
         raise ValueError("Hay valores nulos en 'tasa de cambio' para filas en USD.")
 
-    # Asegurar tipo string en columnas clave para merge
-    df_total["id"] = df_total["id"].astype(str)
-    df_clientes_zeus["codigo_cliente"] = df_clientes_zeus["codigo_cliente"].astype(str)
+    df_total["id"] = df_total["id"].astype(str).str.strip()
+    df_clientes_zeus["codigo_cliente"] = df_clientes_zeus["codigo_cliente"].astype(str).str.strip()
 
-    # Renombrar columnas de df_total_per_liq para el merge correcto
+    # Renombrar columnas de df_total_per_liq
     df_total_per_liq = df_total_per_liq.rename(columns={
         "número de factura": "numero de liquidacion",
         "centro de facturación": "centro de facturacion"
     })
 
-    # Enlaces cruzados
-    df_total = df_total.merge(df_clients[["alias"]], how="left", left_on="cliente", right_on="alias")
+    # Merge con alias cliente (relacionar nombre con alias)
+    df_total = df_total.merge(df_clients[["name", "alias"]], how="left", left_on="cliente", right_on="name")
+
+    # Merge con datos del cliente ZEUS
     df_total = df_total.merge(df_clientes_zeus, how="left", left_on="id", right_on="codigo_cliente")
+
+    # Merge con centro de facturación
     df_total = df_total.merge(
-    df_total_per_liq[["numero de liquidacion", "centro de facturacion"]],
-    on="numero de liquidacion",
-    how="left"
+        df_total_per_liq[["numero de liquidacion", "centro de facturacion"]],
+        on="numero de liquidacion",
+        how="left"
     )
-    df_total = df_total.merge(df_vendedores_zeus, how="left", left_on="centro de facturacion", right_on="nombre")
+
+    # Normalizar para merge con vendedores
+    df_total["centro de facturacion"] = df_total["centro de facturacion"].str.strip().str.lower()
+    df_vendedores_zeus["nombre"] = df_vendedores_zeus["nombre"].str.strip().str.lower()
+
+    # Merge con vendedores
+    df_total = df_total.merge(
+        df_vendedores_zeus[["nombre", "sucursal", "codigo_vendedor"]],
+        how="left",
+        left_on="centro de facturacion",
+        right_on="nombre"
+    )
+
+    # Merge con parámetros (punto de venta, depósito, condición de venta, lista de precios)
     df_total = df_total.merge(df_parametros_zeus, how="left", on="sucursal")
+
+    # ⚠️ ELIMINAR DUPLICADOS por cliente y sucursal, dejando un punto de venta
+    df_total = (
+        df_total.drop_duplicates(subset=["alias", "sucursal","tasa"], keep="first")
+    )
 
     # Cálculo de campos
     df_total["codigo_moneda"] = df_total["moneda de liquidacion"].map({"ARS": ARS_CODE, "USD": USD_CODE})
@@ -71,12 +88,18 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
         lambda x: 1 if x["moneda de liquidacion"] == "ARS" else x["tasa de cambio"], axis=1
     )
     df_total["monto_pesificado"] = df_total.apply(
-        lambda x: x["monto"] if x["moneda de liquidacion"] == "ARS" else x["monto"] * x["tasa de cambio"], axis=1
+        lambda x: x["monto"] if x["moneda de liquidacion"] == "ARS" else x["monto"] * x["tasa de cambio"],
+        axis=1
     )
+
+    print("Columnas finales en df_total:", df_total.columns.tolist())
+    print("Nulos por columna:\n", df_total[[
+        "alias", "sucursal", "punto_de_venta", "codigo_deposito",
+        "codigo_condicion_venta", "codigo_vendedor", "lista_precio"
+    ]].isnull().sum())
 
     fecha_actual_clarion = fecha_a_clarion(datetime.today())
 
-    # Construcción final del DataFrame de importación masiva
     df_masive_import = pd.DataFrame({
         "Pedidos.Código de cliente": df_total["alias"],
         "Pedidos.Sucursal": df_total["sucursal"],
@@ -92,7 +115,7 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
         "Pedidos.Neto gravado del comprobante": 0,
         "pedidos, Total IVA del comprobante": 0,
         "Pedidos.Porcentaje de IVA en comprobante": 0,
-        "Pedidos.Observaciones 1": df_total["numero de liquidacion"].astype(str) + " - " + df_total["tasa de cambio"].astype(str),
+        "Pedidos.Observaciones 1": df_total["numero de liquidacion"].astype(str) + " - TC: " + df_total["tasa de cambio"].astype(str),
         "Pedidos.Precio total del item": df_total["monto_pesificado"],
         "Pedidos.Código de artículo del item": df_total["tasa"],
         "Pedidos.Cantidad del item": 1,
