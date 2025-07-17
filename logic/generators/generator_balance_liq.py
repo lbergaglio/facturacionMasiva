@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 def generate_page_balance_liq(df_total):

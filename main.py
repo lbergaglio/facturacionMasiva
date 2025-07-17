@@ -1,5 +1,4 @@
 import tkinter as tk
-import time
 from PIL import Image, ImageTk
 from config.settings import COLOR_FONDO, COLOR_BOTON, DIMENSION_GRAFICA, TITULO_APP, URL_LOGO, URL_ICONO, DIMENSION_ICONO_ALTO, DIMENSION_ICONO_ANCHO, DIMENSION_LOGO_ALTO, DIMENSION_LOGO_ANCHO
 from gui.components import crear_fila

@@ -35,7 +35,11 @@ COLUMNAS_TOTAL = [
 def generar_control_interno(username,password,tipo_cambio,callback_progress,df_clientes_zeus):
      # === Lectura de archivos de entrada ===
     try:
+        callback_progress("✅ Cargando archivos... (30%)")
+
         df_dom, df_int, df_clients, df_arms = cargar_archivos()
+        callback_progress("✅ Cruzando archivos... (35%)")
+
         # === Generación de la hoja "total" del archivo de control interno ===
         df_total = generate_page_total(df_dom, df_int, COLUMNAS_TOTAL)
         callback_progress("✅ Cruzando archivos... (45%)")
@@ -65,7 +69,7 @@ def generar_control_interno(username,password,tipo_cambio,callback_progress,df_c
         callback_progress("✅ Cruzando archivos... (95%)")
         
         # === Exportar archivo Excel final con ambas hojas ===}
-        return exportar_control_interno(df_total, df_total_per_liq,df_balance,df_summary,df_tesoreria,df_diff_arms,df_masive_import,PATH_SALIDA)
+        return exportar_control_interno(df_total, df_total_per_liq,df_balance,df_summary,df_tesoreria,df_diff_arms,df_masive_import,PATH_SALIDA,callback_progress)
 
     except Exception as e:
         raise RuntimeError(f"Error al leer los archivos: {e}")
