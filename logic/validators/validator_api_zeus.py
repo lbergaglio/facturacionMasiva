@@ -5,6 +5,8 @@ import pandas as pd
 MANDATORY_COLUMNS = ["codigo_cliente", "razon_social", "codigo_localidad", "codigo_provincia", 
                      "codigo_iva", "codigo_condicion_venta", "lista_precio"]
 
+DATAFRAME_CLIENTS_COLUMNS = ["codigo_cliente","codigo_deposito","codigo_condicion_venta","lista_precio"]
+
 
 def validate_completed_columns(df, columns):
     incomplete = []
@@ -48,7 +50,15 @@ def validate_completed_clients(username, password):
         if isinstance(data, list) and data:
             df_clients_zeus = pd.json_normalize(data)
             missing_columns = validate_completed_columns(df_clients_zeus, MANDATORY_COLUMNS)
-            return not bool(missing_columns)      
+            if missing_columns:
+                print("⚠️ Faltan columnas obligatorias en el DataFrame de clientes:")
+                df_clients_zeus = df_clients_zeus[DATAFRAME_CLIENTS_COLUMNS] #ESTE HAY QUE BORRARLO PARA EL FINAL
+                for msg in missing_columns:
+                    print(msg)
+            else:
+                print("✅ Todas las columnas obligatorias están presentes en el DataFrame de clientes.")
+                df_clients_zeus = df_clients_zeus[DATAFRAME_CLIENTS_COLUMNS]
+            return not bool(missing_columns),df_clients_zeus      
         else:
             print(f"⚠️ No hay datos en {endpoint}, o la respuesta no es una lista.")
 

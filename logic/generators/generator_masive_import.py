@@ -22,8 +22,8 @@ def fecha_a_clarion(fecha: datetime) -> int:
     base = datetime(1800, 12, 28)
     return (fecha - base).days
 
-def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
-    df_clientes_zeus, df_vendedores_zeus, df_parametros_zeus = get_dataframes_from_zeus()
+def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,df_clientes_zeus):
+    df_vendedores_zeus, df_parametros_zeus = get_dataframes_from_zeus()
 
     # Normalizar nombres de columnas
     for df in [df_total, df_total_per_liq, df_clients, df_clientes_zeus, df_vendedores_zeus, df_parametros_zeus]:
@@ -40,9 +40,6 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
     if df_total[df_total["moneda de liquidacion"] == "USD"]["tasa de cambio"].isnull().any():
         raise ValueError("Hay valores nulos en 'tasa de cambio' para filas en USD.")
 
-    df_total["id"] = df_total["id"].astype(str).str.strip()
-    df_clientes_zeus["codigo_cliente"] = df_clientes_zeus["codigo_cliente"].astype(str).str.strip()
-
     # Renombrar columnas de df_total_per_liq
     df_total_per_liq = df_total_per_liq.rename(columns={
         "número de factura": "numero de liquidacion",
@@ -52,8 +49,8 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
     # Merge con alias cliente (relacionar nombre con alias)
     df_total = df_total.merge(df_clients[["name", "alias"]], how="left", left_on="cliente", right_on="name")
 
-    # Merge con datos del cliente ZEUS
-    df_total = df_total.merge(df_clientes_zeus, how="left", left_on="id", right_on="codigo_cliente")
+    # Merge con datos del cliente ZEUS (relacionar alias de df_total con codigo_cliente de df_clientes_zeus)
+    df_total = df_total.merge(df_clientes_zeus, how="left", left_on="alias", right_on="codigo_cliente")
 
     # Merge con centro de facturación
     df_total = df_total.merge(
@@ -77,7 +74,7 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
     # Merge con parámetros (punto de venta, depósito, condición de venta, lista de precios)
     df_total = df_total.merge(df_parametros_zeus, how="left", on="sucursal")
 
-    # ⚠️ ELIMINAR DUPLICADOS por cliente y sucursal, dejando un punto de venta
+    # ELIMINAR DUPLICADOS por cliente y sucursal, dejando un punto de venta
     df_total = (
         df_total.drop_duplicates(subset=["alias", "sucursal","tasa"], keep="first")
     )
@@ -92,14 +89,17 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio):
         axis=1
     )
 
-    print("Columnas finales en df_total:", df_total.columns.tolist())
+    """print("Columnas finales en df_total:", df_total.columns.tolist())
     print("Nulos por columna:\n", df_total[[
         "alias", "sucursal", "punto_de_venta", "codigo_deposito",
         "codigo_condicion_venta", "codigo_vendedor", "lista_precio"
     ]].isnull().sum())
-
+    """
+    # Generación de fecha formato Clarion
     fecha_actual_clarion = fecha_a_clarion(datetime.today())
 
+
+    # Generación del DataFrame de importación masiva
     df_masive_import = pd.DataFrame({
         "Pedidos.Código de cliente": df_total["alias"],
         "Pedidos.Sucursal": df_total["sucursal"],

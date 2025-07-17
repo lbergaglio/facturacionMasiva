@@ -51,12 +51,14 @@ def validar_y_generar(tipo_cambio_str, callback_progress=None):
             messagebox.showerror("Error", "No se ingresaron credenciales. Proceso cancelado.")
             return
         callback_progress("✅ Validando credenciales... (20%)")
-        if validate_completed_clients(username, password): #tiene que ser NOT (pero para hacer pruebas se lo sacamos porque no esta completo el API)
+        # Validación de clientes
+        is_clients_zeus_completed, df_clientes_zeus = validate_completed_clients(username, password)
+        if is_clients_zeus_completed: #tiene que ser NOT (pero para hacer pruebas se lo sacamos porque no esta completo el API)
             messagebox.showerror("Advertencia", "Se encontraron clientes incompletos. El archivo de control interno no se generó.")
             return
         else:
             callback_progress("✅ Credenciales validadas... (40%)")
-            path_salida, _ = generar_control_interno(tipo_cambio_float,callback_progress)
+            path_salida, _ = generar_control_interno(tipo_cambio_float,callback_progress,df_clientes_zeus)
             messagebox.showinfo("Éxito", f"Archivo de control interno generado:\n{path_salida}")
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo generar el archivo de control interno:\n{str(e)}")

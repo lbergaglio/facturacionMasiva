@@ -41,18 +41,18 @@ def search_dataframes_masive_import(username, password):
     headers = {"Authorization": f"Bearer {access_token}"}
     endpoint_vendedores = "/vendedores"
     endpoint_parametros = "/paraux"
-    endpoint_clientes = "/cliente"
+    #endpoint_clientes = "/cliente"
     base_url = "https://api.infosis.tech/zeus"
     
-    url_clientes = f"{base_url}{endpoint_clientes}"
+    #url_clientes = f"{base_url}{endpoint_clientes}"
     url_vendedores = f"{base_url}{endpoint_vendedores}"
     url_parametros = f"{base_url}{endpoint_parametros}"
 
-    clientes_columns = ["codigo_cliente","codigo_deposito","codigo_condicion_venta","lista_precio"]
+    #clientes_columns = ["codigo_cliente","codigo_deposito","codigo_condicion_venta","lista_precio"]
     vendedores_columns = ["codigo_vendedor","nombre","sucursal"]
     parametros_columns = ["sucursal","punto_de_venta"]
 
-    df_clientes_zeus = get_dataframe(url_clientes, clientes_columns,headers)
+    #df_clientes_zeus = get_dataframe(url_clientes, clientes_columns,headers)
     df_vendedores_zeus = get_dataframe(url_vendedores, vendedores_columns,headers)
     df_parametros_zeus = get_dataframe(url_parametros, parametros_columns, headers)
 
@@ -60,7 +60,7 @@ def search_dataframes_masive_import(username, password):
     #df_vendedores_zeus.to_excel("vendedores_zeus.xlsx", index=False)
     #df_parametros_zeus.to_excel("parametros_zeus.xlsx", index=False)
 
-    return df_clientes_zeus, df_vendedores_zeus, df_parametros_zeus
+    return df_vendedores_zeus, df_parametros_zeus
 
 def get_dataframes_from_zeus():
     username, password = solicitar_credenciales_api()

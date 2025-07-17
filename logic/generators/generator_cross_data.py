@@ -32,7 +32,7 @@ COLUMNAS_TOTAL = [
     'Tasa', 'Servicios', 'Monto', 'Km', 'id'
 ]
 
-def generar_control_interno(tipo_cambio,callback_progress):
+def generar_control_interno(tipo_cambio,callback_progress,df_clientes_zeus):
      # === Lectura de archivos de entrada ===
     try:
         df_dom, df_int, df_clients, df_arms = cargar_archivos()
@@ -61,7 +61,7 @@ def generar_control_interno(tipo_cambio,callback_progress):
         callback_progress("✅ Cruzando archivos... (90%)")
 
         # === Generación de Importación Masiva ===
-        df_masive_import = generate_masive_import(df_total, df_total_per_liq, df_clients, tipo_cambio)
+        df_masive_import = generate_masive_import(df_total, df_total_per_liq, df_clients, tipo_cambio, df_clientes_zeus)
         callback_progress("✅ Cruzando archivos... (95%)")
         
         # === Exportar archivo Excel final con ambas hojas ===}
