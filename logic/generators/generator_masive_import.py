@@ -49,8 +49,15 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,d
     # Merge con alias cliente (relacionar nombre con alias)
     df_total = df_total.merge(df_clients[["name", "alias"]], how="left", left_on="cliente", right_on="name")
 
+    # Ajustar alias de clientes que empiezan con "LV" para que tengan el formato correcto
+    df_total["alias"] = df_total["alias"].astype(str).str.strip().str.upper()
+    df_clientes_zeus["codigo_cliente"] = df_clientes_zeus["codigo_cliente"].astype(str).str.strip().str.upper()
+    df_total.loc[df_total["alias"].str.startswith("LV", na=False), "alias"] = \
+    df_total["alias"].str.replace(r"^LV", "LV-", regex=True)
+
     # Merge con datos del cliente ZEUS (relacionar alias de df_total con codigo_cliente de df_clientes_zeus)
     df_total = df_total.merge(df_clientes_zeus, how="left", left_on="alias", right_on="codigo_cliente")
+
 
     # Merge con centro de facturación
     df_total = df_total.merge(
