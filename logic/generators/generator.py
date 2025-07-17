@@ -58,7 +58,7 @@ def validar_y_generar(tipo_cambio_str, callback_progress=None):
             return
         else:
             callback_progress("✅ Credenciales validadas... (40%)")
-            path_salida, _ = generar_control_interno(tipo_cambio_float,callback_progress,df_clientes_zeus)
+            path_salida, _ = generar_control_interno(username,password,tipo_cambio_float,callback_progress,df_clientes_zeus)
             messagebox.showinfo("Éxito", f"Archivo de control interno generado:\n{path_salida}")
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo generar el archivo de control interno:\n{str(e)}")

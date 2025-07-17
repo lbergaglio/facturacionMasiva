@@ -22,8 +22,8 @@ def fecha_a_clarion(fecha: datetime) -> int:
     base = datetime(1800, 12, 28)
     return (fecha - base).days
 
-def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,df_clientes_zeus):
-    df_vendedores_zeus, df_parametros_zeus = get_dataframes_from_zeus()
+def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,df_clientes_zeus, username, password):
+    df_vendedores_zeus, df_parametros_zeus = get_dataframes_from_zeus(username, password)
 
     # Normalizar nombres de columnas
     for df in [df_total, df_total_per_liq, df_clients, df_clientes_zeus, df_vendedores_zeus, df_parametros_zeus]:
