@@ -28,7 +28,7 @@ CLIENT_SECRET = ""
 
 def get_token_oauth2():
     username = "lbergaglio"
-    password = "Turn0T3c2024#"
+    password = "*****"
     payload = {
         "grant_type": "password",
         "username": username,
@@ -82,8 +82,6 @@ def get_dataframe_paginado(base_url, columns, headers):
         return df[[col for col in columns if col in df.columns]]
     else:
         return pd.DataFrame(columns=columns)
-
-
 
 # === Ejecución principal ===
 token = get_token_oauth2()
