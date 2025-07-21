@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import getpass
 #from gui.components import solicitar_credenciales_api
 
 
@@ -19,16 +20,19 @@ API_BASE = f"{BASE_URL}/abms/api/"
 
 ENDPOINT_ACCOUNT = "accounts"
 ENDPOINT_BILLING_LEDGER = "billing-ledgers"
-COLUMNS_ACCOUNT = ["id","name", "alias","active"]
+ENDPOINT_FLIGHTMOVEMENT = "flightmovements"
+
+COLUMNS_ACCOUNT = ["id","name", "alias", "active", "account_type.id"]
 COLUMNS_BILLING_LEDGER = ["invoice_period_or_date","account.name", "invoice_type","flightmovement_category.name" ,"invoice_number","invoice_currency.currency_code" ,"invoice_amount", "invoice_state_type","billing_center.name","id"]
+COLUMNS_FLIGHTMOVEMENTS = ["invoice_id", "enroute_charges", "approach_charges", "extended_hours_surcharge"]
 
 # === Credenciales OAuth2 (completá los que falten) ===
 CLIENT_ID = "abms_external_client"
 CLIENT_SECRET = ""
 
 def get_token_oauth2():
-    username = "lbergaglio"
-    password = "*****"
+    username = input|("🔑 Ingrese su nombre de usuario: ")
+    password = getpass.getpass("🔑 Ingrese su contraseña: ")
     payload = {
         "grant_type": "password",
         "username": username,
@@ -87,11 +91,21 @@ def get_dataframe_paginado(base_url, columns, headers):
 token = get_token_oauth2()
 if token:
     headers = {"Authorization": f"Bearer {token}"}
-    #df_accounts = get_dataframe_paginado(API_BASE + ENDPOINT_ACCOUNT, COLUMNS_ACCOUNT, headers)
+    
     start_date = "2025-01-01"
     end_date = "2025-01-31"
-    df_billing_ledgers = get_dataframe_paginado(API_BASE + "billing-ledgers?startDate=2025-01-01&endDate=2025-01-31",COLUMNS_BILLING_LEDGER, headers)
+    invoice_id = 49085
+
+
+    url_billing_ledgers=f"{API_BASE}billing-ledgers?startDate={start_date}&endDate={end_date}"
+    url_flightmovements = f"{API_BASE}flightmovements/list/invoices/{invoice_id}"
+
+    #df_billing_ledgers = get_dataframe_paginado(url_billing_ledgers,COLUMNS_BILLING_LEDGER, headers)
+    #df_accounts = get_dataframe_paginado(API_BASE + ENDPOINT_ACCOUNT, COLUMNS_ACCOUNT, headers)
+    df_flightmovements = get_dataframe_paginado(url_flightmovements, COLUMNS_FLIGHTMOVEMENTS, headers)
     #print(df_accounts)
+    #print(df_billing_ledgers)
+    print(df_flightmovements)
     #df_accounts.to_excel("accounts.xlsx", index=False)
-    print(df_billing_ledgers)
-    df_billing_ledgers.to_excel("billing_ledgers.xlsx", index=False)
+    #df_billing_ledgers.to_excel("billing_ledgers.xlsx", index=False)
+    df_flightmovements.to_excel("flightmovements.xlsx", index=False)
