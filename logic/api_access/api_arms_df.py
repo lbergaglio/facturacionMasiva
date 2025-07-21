@@ -117,21 +117,46 @@ def construir_df_final(start_date, end_date, headers):
 
         datos_factura = df_billing[df_billing["id"] == invoice_id].iloc[0]
 
-        resultados.append({
-            "id": invoice_id,
-            "account_name": datos_factura["account.name"],
-            "alias": datos_factura["alias"],
-            "invoice_number": datos_factura["invoice_number"],
-            "fecha_factura": datos_factura["invoice_period_or_date"],
-            "moneda": datos_factura["invoice_currency.currency_code"],
-            "monto_factura": datos_factura["invoice_amount"],
-            "cantidad_apoyo": cantidad_apoyo,
-            "monto_apoyo": monto_apoyo,
-            "cantidad_proteccion": cantidad_proteccion,
-            "monto_proteccion": monto_proteccion,
-            "cantidad_sna": cantidad_sna,
-            "monto_sna": monto_sna
-        })
+        # Agregar una fila por tipo de tasa
+        resultados.extend([
+            {
+                "id": invoice_id,
+                "account_name": datos_factura["account.name"],
+                "alias": datos_factura["alias"],
+                "invoice_number": datos_factura["invoice_number"],
+                "fecha_factura": datos_factura["invoice_period_or_date"],
+                "moneda": datos_factura["invoice_currency.currency_code"],
+                "monto_factura": datos_factura["invoice_amount"],
+                "tasa": "APOYO",
+                "cantidad": cantidad_apoyo,
+                "monto": monto_apoyo,
+            },
+            {
+                "id": invoice_id,
+                "account_name": datos_factura["account.name"],
+                "alias": datos_factura["alias"],
+                "invoice_number": datos_factura["invoice_number"],
+                "fecha_factura": datos_factura["invoice_period_or_date"],
+                "moneda": datos_factura["invoice_currency.currency_code"],
+                "monto_factura": datos_factura["invoice_amount"],
+                "tasa": "PROTECCION",
+                "cantidad": cantidad_proteccion,
+                "monto": monto_proteccion,
+            },
+            {
+                "id": invoice_id,
+                "account_name": datos_factura["account.name"],
+                "alias": datos_factura["alias"],
+                "invoice_number": datos_factura["invoice_number"],
+                "fecha_factura": datos_factura["invoice_period_or_date"],
+                "moneda": datos_factura["invoice_currency.currency_code"],
+                "monto_factura": datos_factura["invoice_amount"],
+                "tasa": "SNA",
+                "cantidad": cantidad_sna,
+                "monto": monto_sna,
+            },
+        ])
+
 
     df_final = pd.DataFrame(resultados)
     return df_final
