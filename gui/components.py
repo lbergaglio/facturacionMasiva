@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+from tkcalendar import DateEntry
 from config.settings import labels_titulos, COLOR_FONDO, COLOR_BOTON
+from datetime import datetime
 
 archivos_cargados = {k: None for k in labels_titulos.keys()}
 
@@ -37,6 +39,47 @@ def solicitar_credenciales_api():
     ventana.wait_window()  # espera a que la ventana se cierre
 
     return resultado["usuario"], resultado["contraseña"]
+
+def crear_fila_fecha_desde_hasta(root, texto_titulo, clave_desde, clave_hasta, bg_color):
+    frame = tk.Frame(root, bg=bg_color)
+    frame.pack(pady=10, padx=30, anchor="w")
+
+    titulo = tk.Label(frame, text=texto_titulo, width=30, anchor="w", bg=bg_color, font=("Arial", 10, "bold"), fg="#ffffff")
+    titulo.pack(side="left")
+
+    entry_desde = DateEntry(
+        frame,
+        width=12,
+        background='darkblue',
+        foreground='white',
+        borderwidth=2,
+        date_pattern='yyyy-mm-dd'
+    )
+    entry_desde.pack(side="left", padx=(5, 0))
+
+    entry_hasta = DateEntry(
+        frame,
+        width=12,
+        background='darkblue',
+        foreground='white',
+        borderwidth=2,
+        date_pattern='yyyy-mm-dd'
+    )
+    entry_hasta.pack(side="left", padx=(5, 10))
+
+    archivos_cargados[clave_desde] = entry_desde.get_date().strftime("%Y-%m-%d")
+    archivos_cargados[clave_hasta] = entry_hasta.get_date().strftime("%Y-%m-%d")
+
+    def guardar_fechas(_=None):
+        fecha_desde = entry_desde.get_date().strftime("%Y-%m-%d")
+        fecha_hasta = entry_hasta.get_date().strftime("%Y-%m-%d")
+        archivos_cargados[clave_desde] = fecha_desde
+        archivos_cargados[clave_hasta] = fecha_hasta
+
+    entry_desde.bind("<<DateEntrySelected>>", guardar_fechas)
+    entry_hasta.bind("<<DateEntrySelected>>", guardar_fechas)
+
+    return entry_desde, entry_hasta
 
 
 

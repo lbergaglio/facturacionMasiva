@@ -17,13 +17,49 @@ ENDPOINT_ACCOUNT = "accounts"
 ENDPOINT_BILLING_LEDGER = "billing-ledgers"
 ENDPOINT_FLIGHTMOVEMENT = "flightmovements"
 
-COLUMNS_ACCOUNT = ["id", "name", "alias", "active", "account_type.id"]
+MAPEO_TASAS = {
+    ("APOYO", "ARS"): "AAN",
+    ("APOYO", "USD"): "AAI",
+    ("PROTECCION", "ARS"): "PVN",
+    ("PROTECCION", "USD"): "PVI",
+    ("SNA", "ARS"): "EXT",
+    ("SNA", "USD"): "EXTI",
+}
+
+MAPEO_ACCOUNT_TYPES = {
+    "Airline": "AEROLINEAS",
+    "GeneralAviation": "AVIACION GENERAL",
+}
+
+MAPEO_ACCOUNT_TYPES_REV = {
+    "Airline": 1,
+    "GeneralAviation": 8,
+}
+
+MAPEO_INVOICE_CONCEPTS = {
+    "INTERNATIONAL/FOREIGN" : "INTERNACIONAL/EXTRANJERO",
+    "INTERNATIONAL/NATIONAL" : "INTERNACIONAL/NACIONAL",
+    "OVERFLIGHT/FOREIGN" : "SOBREVUELO/EXTRANJERO",
+    "OVERFLIGHT/NATIONAL" : "SOBREVUELO/NACIONAL",
+    "DOMESTIC/FOREIGN" : "NACIONAL/EXTRANJERO",
+    "DOMESTIC/NATIONAL" : "NACIONAL/NACIONAL",
+}
+
+COLUMNS_ACCOUNT = [
+    "name", "icao_code","iata_code", "alias","aviation_billing_contact_person_name", "aviation_billing_email_address",
+    "account_type.name","nationality","aircraft_parking_exemption","active","approved_flight_school_indicator",
+    "aviation_billing_sms_number","black_listed_indicator","black_listed_override", "cash_account", "created_at",
+    "created_by","credit_limit","discount_structure","iata_member","id", "invoice_currency","invoice_delivery_format",
+    "invoice_delivery_method", "is_self_care", "monthly_overdue_penalty_rate", "non_aviation_billing_contact_person_name",
+    "non_aviation_billing_email_address", "non_aviation_billing_mailing_address", "non_aviation_billing_phone_number",
+    "non_aviation_billing_sms_number", "notes", "opr_identifier", "payment_terms", "percentage_of_passenger_fee_payable",
+    "separate_pax_invoice", "tax_profile", "updated_at", "updated_by", "version"]
 COLUMNS_BILLING_LEDGER = [
-    "invoice_period_or_date", "account.name", "invoice_type", "flightmovement_category.name",
+    "invoice_period_or_date", "invoice_date_of_issue", "account.name", "invoice_type", "flightmovement_category.name",
     "invoice_number", "invoice_currency.currency_code", "invoice_amount",
     "invoice_state_type", "billing_center.name", "id"
 ]
-COLUMNS_FLIGHTMOVEMENTS = ["invoice_id", "enroute_charges", "approach_charges", "extended_hours_surcharge"]
+COLUMNS_FLIGHTMOVEMENTS = ["invoice_id", "enroute_charges", "approach_charges", "extended_hours_surcharge", "fpl_crossing_distance"]
 
 CLIENT_ID = "abms_external_client"
 CLIENT_SECRET = ""  # <--- Completá esto si aplica
@@ -87,88 +123,120 @@ def get_dataframe_paginado(base_url, columns, headers):
         return pd.DataFrame(columns=columns)
 
 # === Pipeline principal ===
-def construir_df_final(start_date, end_date, headers):
-    print("🔹 Paso 1: Extrayendo billing-ledgers...")
-    df_billing = get_dataframe_paginado(
-        f"{API_BASE}{ENDPOINT_BILLING_LEDGER}?startDate={start_date}&endDate={end_date}",
-        COLUMNS_BILLING_LEDGER,
-        headers
-    )
-
-    print("🔹 Paso 2: Extrayendo accounts...")
-    df_accounts = get_dataframe_paginado(API_BASE + ENDPOINT_ACCOUNT, COLUMNS_ACCOUNT, headers)
-    df_billing = df_billing.merge(df_accounts[["name", "alias"]], how="left", left_on="account.name", right_on="name")
-
-    resultados = []
-    print("🔹 Paso 3: Extrayendo flightmovements por invoice_id...")
-
-    for invoice_id in tqdm(df_billing["id"].dropna().unique(), desc="Procesando invoices"):
-        url_fm = f"{API_BASE}flightmovements/list/invoices/{invoice_id}"
-        df_fm = get_dataframe_paginado(url_fm, COLUMNS_FLIGHTMOVEMENTS, headers)
-
-        cantidad_apoyo = df_fm["approach_charges"].gt(0).sum()
-        monto_apoyo = df_fm["approach_charges"].sum()
-
-        cantidad_proteccion = df_fm["enroute_charges"].gt(0).sum()
-        monto_proteccion = df_fm["enroute_charges"].sum()
-
-        cantidad_sna = df_fm["extended_hours_surcharge"].gt(0).sum()
-        monto_sna = df_fm["extended_hours_surcharge"].sum()
-
-        datos_factura = df_billing[df_billing["id"] == invoice_id].iloc[0]
-
-        # Agregar una fila por tipo de tasa
-        resultados.extend([
-            {
-                "id": invoice_id,
-                "account_name": datos_factura["account.name"],
-                "alias": datos_factura["alias"],
-                "invoice_number": datos_factura["invoice_number"],
-                "fecha_factura": datos_factura["invoice_period_or_date"],
-                "moneda": datos_factura["invoice_currency.currency_code"],
-                "monto_factura": datos_factura["invoice_amount"],
-                "tasa": "APOYO",
-                "cantidad": cantidad_apoyo,
-                "monto": monto_apoyo,
-            },
-            {
-                "id": invoice_id,
-                "account_name": datos_factura["account.name"],
-                "alias": datos_factura["alias"],
-                "invoice_number": datos_factura["invoice_number"],
-                "fecha_factura": datos_factura["invoice_period_or_date"],
-                "moneda": datos_factura["invoice_currency.currency_code"],
-                "monto_factura": datos_factura["invoice_amount"],
-                "tasa": "PROTECCION",
-                "cantidad": cantidad_proteccion,
-                "monto": monto_proteccion,
-            },
-            {
-                "id": invoice_id,
-                "account_name": datos_factura["account.name"],
-                "alias": datos_factura["alias"],
-                "invoice_number": datos_factura["invoice_number"],
-                "fecha_factura": datos_factura["invoice_period_or_date"],
-                "moneda": datos_factura["invoice_currency.currency_code"],
-                "monto_factura": datos_factura["invoice_amount"],
-                "tasa": "SNA",
-                "cantidad": cantidad_sna,
-                "monto": monto_sna,
-            },
-        ])
-
-
-    df_final = pd.DataFrame(resultados)
-    return df_final
-
-# === Ejecución ===
-if __name__ == "__main__":
+def generate_total_and_clients(start_date, end_date, tasa_de_cambio):
     token = get_token_oauth2()
     if token:
         headers = {"Authorization": f"Bearer {token}"}
-        start_date = "2025-01-01"
-        end_date = "2025-01-31"
+        print("🔹 Paso 1: Extrayendo billing-ledgers...")
+        df_billing_ledgers = get_dataframe_paginado(
+            f"{API_BASE}{ENDPOINT_BILLING_LEDGER}?startDate={start_date}&endDate={end_date}",
+            COLUMNS_BILLING_LEDGER,
+            headers
+        )
 
-        df_final = construir_df_final(start_date, end_date, headers)
+        print("🔹 Paso 2: Extrayendo accounts...")
+        df_accounts = get_dataframe_paginado(API_BASE + ENDPOINT_ACCOUNT, COLUMNS_ACCOUNT, headers)
+        df_billing_ledgers = df_billing_ledgers.merge(df_accounts[["name", "alias","account_type.name"]], how="left", left_on="account.name", right_on="name")
+
+        resultados = []
+        print("🔹 Paso 3: Extrayendo flightmovements por id...")
+        for invoice_id in tqdm(df_billing_ledgers["id"].dropna().unique(), desc="Procesando invoices"):
+            url_flightmovements = f"{API_BASE}flightmovements/list/invoices/{invoice_id}"
+            df_flightmovements = get_dataframe_paginado(url_flightmovements, COLUMNS_FLIGHTMOVEMENTS, headers)
+
+            invoice_date = pd.to_datetime(
+                df_billing_ledgers.loc[df_billing_ledgers["id"] == invoice_id, "invoice_date_of_issue"].iloc[0]
+            ).strftime("%d/%m/%Y")
+
+            period_date = pd.to_datetime(
+                df_billing_ledgers.loc[df_billing_ledgers["id"] == invoice_id, "invoice_period_or_date"].iloc[0]
+            ).strftime("%d/%m/%Y")
+
+            account_type = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id]["account_type.name"].iloc[0]
+
+            invoice_type = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id]["invoice_type"].iloc[0]
+            invoice_concept = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id]["flightmovement_category.name"].iloc[0]
+
+            approach_qty = df_flightmovements["approach_charges"].gt(0).sum()
+            approach_amount = df_flightmovements["approach_charges"].sum()
+            approach_distance = 0
+
+            protection_qty = df_flightmovements["enroute_charges"].gt(0).sum()
+            protection_amount = df_flightmovements["enroute_charges"].sum()
+            protection_distance = df_flightmovements["fpl_crossing_distance"].sum() if "fpl_crossing_distance" in df_flightmovements.columns else 0
+
+            sna_qty = df_flightmovements["extended_hours_surcharge"].gt(0).sum()
+            sna_amount = df_flightmovements["extended_hours_surcharge"].sum()
+            sna_distance = 0
+
+            datos_factura = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id].iloc[0]
+
+            moneda = datos_factura["invoice_currency.currency_code"]
+
+            df_accounts["account_type"] = df_accounts["account_type.name"].apply(lambda x: MAPEO_ACCOUNT_TYPES_REV.get(x, "DESCONOCIDO"))
+
+            # Agregar una fila por tipo de Tasa
+            resultados.extend([
+                {
+                    "Número de Liquidacion": datos_factura["invoice_number"],
+                    "Fecha de Liquidación": invoice_date,
+                    "Período de Liquidación": period_date,
+                    "Cliente": datos_factura["account.name"],
+                    #"alias": datos_factura["alias"],
+                    "Tipo Cliente": MAPEO_ACCOUNT_TYPES[account_type],
+                    "Tipo de Factura": invoice_type,
+                    "Concepto Facturado": MAPEO_INVOICE_CONCEPTS.get(invoice_concept, "DESCONOCIDO"),
+                    "Moneda de Liquidación": moneda,
+                    "Tasa": MAPEO_TASAS[("APOYO", moneda)],
+                    "Servicios": approach_qty,
+                    "Monto": approach_amount,
+                    "Km": approach_distance,
+                    "id": invoice_id,
+                    "Tasa de cambio": tasa_de_cambio
+                },
+                {
+                    "Número de Liquidacion": datos_factura["invoice_number"],
+                    "Fecha de Liquidación": invoice_date,
+                    "Período de Liquidación": period_date,
+                    "Cliente": datos_factura["account.name"],
+                    #"alias": datos_factura["alias"],
+                    "Tipo Cliente": MAPEO_ACCOUNT_TYPES[account_type],
+                    "Tipo de Factura": invoice_type,
+                    "Concepto Facturado": MAPEO_INVOICE_CONCEPTS.get(invoice_concept, "DESCONOCIDO"),
+                    "Moneda de Liquidación": moneda,
+                    "Tasa": MAPEO_TASAS[("PROTECCION", moneda)],
+                    "Servicios": protection_qty,
+                    "Monto": protection_amount,
+                    "Km": protection_distance,
+                    "id": invoice_id,
+                    "Tasa de cambio": tasa_de_cambio
+                },
+                {
+                    "Número de Liquidacion": datos_factura["invoice_number"],
+                    "Fecha de Liquidación": invoice_date,
+                    "Período de Liquidación": period_date,
+                    "Cliente": datos_factura["account.name"],
+                    #"alias": datos_factura["alias"],
+                    "Tipo Cliente": MAPEO_ACCOUNT_TYPES[account_type],
+                    "Tipo de Factura": invoice_type,
+                    "Concepto Facturado": MAPEO_INVOICE_CONCEPTS.get(invoice_concept, "DESCONOCIDO"),
+                    "Moneda de Liquidación": moneda,
+                    "Tasa": MAPEO_TASAS[("SNA", moneda)],
+                    "Servicios": sna_qty,
+                    "Monto": sna_amount,
+                    "Km": sna_distance,
+                    "id": invoice_id,
+                    "Tasa de cambio": tasa_de_cambio
+                },
+            ])
+
+        df_final = pd.DataFrame(resultados)
         df_final.to_excel("reporte_facturas_servicios.xlsx", index=False)
-        print("✅ Exportado como 'reporte_facturas_servicios.xlsx'")
+        df_accounts.to_excel("reporte_clientes.xlsx", index=False)
+        return df_final, df_accounts
+    else:
+        raise RuntimeError("No se pudo obtener el token OAuth2.")
+
+# === Ejecución ===
+if __name__ == "__main__":
+    generate_total_and_clients()

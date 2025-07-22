@@ -1,7 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from config.settings import COLOR_FONDO, COLOR_BOTON, DIMENSION_GRAFICA, TITULO_APP, URL_LOGO, URL_ICONO, DIMENSION_ICONO_ALTO, DIMENSION_ICONO_ANCHO, DIMENSION_LOGO_ALTO, DIMENSION_LOGO_ANCHO
-from gui.components import crear_fila
+from gui.components import crear_fila, crear_fila_fecha_desde_hasta
 from logic.generators.generator import validar_y_generar
 
 root = tk.Tk()
@@ -18,10 +18,16 @@ imagen_tk = ImageTk.PhotoImage(imagen)
 tk.Label(root, image=imagen_tk, bg=COLOR_FONDO).pack(pady=10)
 
 # Campos de carga
-crear_fila(root, "Liquidaciones domésticas PBI:", "liq_dom_pbi", COLOR_FONDO)
-crear_fila(root, "Liquidaciones internacionales PBI:", "liq_int_pbi", COLOR_FONDO)
-crear_fila(root, "Clientes Maestros:", "clients_pbi", COLOR_FONDO)
-crear_fila(root, "Liquidaciones ARMS:", "liq_arms", COLOR_FONDO)
+#crear_fila(root, "Liquidaciones domésticas PBI:", "liq_dom_pbi", COLOR_FONDO)
+#crear_fila(root, "Liquidaciones internacionales PBI:", "liq_int_pbi", COLOR_FONDO)
+#crear_fila(root, "Clientes Maestros:", "clients_pbi", COLOR_FONDO)
+#crear_fila(root, "Liquidaciones ARMS:", "liq_arms", COLOR_FONDO)
+
+#Campo fecha desde y hasta
+entry_desde,entry_hasta = crear_fila_fecha_desde_hasta(root, "Fecha desde:", "start_date", "end_date", COLOR_FONDO)
+
+print("Fecha desde:", entry_desde.get_date())
+print("Fecha hasta:", entry_hasta.get_date())
 
 # Campo tipo de cambio
 frame_tc = tk.Frame(root, bg=COLOR_FONDO)
@@ -59,7 +65,7 @@ def update_progress(texto):
 def ejecutar_con_spinner():
     def tarea():
         try:
-            validar_y_generar(entry_tipo_cambio.get(), callback_progress=update_progress)
+            validar_y_generar(entry_tipo_cambio.get(), entry_desde.get_date(),entry_hasta.get_date(), callback_progress=update_progress)
         finally:
             spinner.stop()
             spinner.pack_forget()

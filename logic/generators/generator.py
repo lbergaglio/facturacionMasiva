@@ -13,7 +13,7 @@ TIPO_MAPEO = {
     "liq_arms": "liquidaciones_arms"
 }
 
-def validar_y_generar(tipo_cambio_str, callback_progress=None):
+def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=None):
     faltantes = [k for k, v in archivos_cargados.items() if v is None]
 
     if not tipo_cambio_str:
@@ -26,14 +26,14 @@ def validar_y_generar(tipo_cambio_str, callback_progress=None):
         messagebox.showerror("Valor inválido", "El tipo de cambio debe ser un número.")
         return
 
-    if faltantes:
+    #if faltantes:
         mensaje = "Faltan cargar los siguientes archivos:\n"
         mensaje += "\n".join(f"- {labels_titulos[k]}" for k in faltantes)
         messagebox.showwarning("Archivos faltantes", mensaje)
         return
     
     
-    # Validación de headers
+    """# Validación de headers
     for tipo_gui, archivo in archivos_cargados.items():
         callback_progress("✅ Validando archivos... (10%)")
         if archivo:
@@ -42,7 +42,7 @@ def validar_y_generar(tipo_cambio_str, callback_progress=None):
             if not valido:
                 messagebox.showerror("Error de validación", f"{labels_titulos[tipo_gui]}: {mensaje}")
                 return
-    
+    """
     # Generación del archivo de control interno
     try:
         username, password = solicitar_credenciales_api()
@@ -58,7 +58,7 @@ def validar_y_generar(tipo_cambio_str, callback_progress=None):
             return
         else:
             callback_progress("✅ Credenciales validadas... (25%)")
-            path_salida, _ = generar_control_interno(username,password,tipo_cambio_float,callback_progress,df_clientes_zeus)
+            path_salida, _ = generar_control_interno(username,password,tipo_cambio_float,callback_progress,df_clientes_zeus,start_date, end_date)
             messagebox.showinfo("Éxito", f"Archivo de control interno generado:\n{path_salida}")
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo generar el archivo de control interno:\n{str(e)}")
