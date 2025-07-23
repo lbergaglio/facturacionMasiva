@@ -2,7 +2,6 @@ import pandas as pd
 import os
 from datetime import datetime
 from gui.components import archivos_cargados
-from logic.parse_inputs import cargar_archivos
 import tkinter.messagebox as messagebox
 from logic.exporter import exportar_control_interno
 from logic.api_access.api_arms_df import generate_total_and_clients
@@ -13,24 +12,8 @@ from logic.generators.generator_summary import generate_page_summary
 from logic.generators.generator_tesoreria import generate_page_tesoreria
 from logic.generators.generator_masive_import import generate_masive_import
 
-
 # Ruta de salida para el archivo generado
 PATH_SALIDA = "salida/control_interno.xlsx"
-
-# Mapeo para los nombres de los archivos cargados
-TIPO_MAPEO = {
-    "liq_dom_pbi": "powerbi_domestico",
-    "liq_int_pbi": "powerbi_internacional",
-    "clients_pbi": "clientes_maestros",
-    "liq_arms": "liquidaciones_arms"
-}
-
-# Columnas esperadas para la hoja "total" de control interno
-COLUMNAS_TOTAL = [
-    'Número de Liquidacion', 'Fecha de Liquidación', 'Período de Liquidación', 'Cliente', 'Tipo Cliente',
-    'Tipo de Factura', 'Concepto Facturado', 'Número', 'Moneda de Liquidación',
-    'Tasa', 'Servicios', 'Monto', 'Km', 'id'
-]
 
 def generar_control_interno(username,password,tipo_cambio,callback_progress,df_clientes_zeus,start_date,end_date):
      # === Lectura de archivos de entrada ===

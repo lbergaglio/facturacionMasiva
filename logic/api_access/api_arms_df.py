@@ -2,89 +2,16 @@ import requests
 import pandas as pd
 import getpass
 from tqdm import tqdm
+from gui.components import solicitar_credenciales_api
+from logic.api_access.tokens.arms_token import get_token_oauth2
+from config.settings_api_arms import TOKEN_URL, API_BASE, ENDPOINT_ACCOUNT, ENDPOINT_BILLING_LEDGER, \
+    ENDPOINT_FLIGHTMOVEMENT, MAPEO_TASAS, MAPEO_ACCOUNT_TYPES, MAPEO_ACCOUNT_TYPES_REV, MAPEO_INVOICE_CONCEPTS, \
+    COLUMNS_ACCOUNT, COLUMNS_BILLING_LEDGER, COLUMNS_FLIGHTMOVEMENTS, CLIENT_ID, CLIENT_SECRET
 
 # === Configuración de Pandas ===
 pd.set_option("display.max_colwidth", None)
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 0)
-
-# === URLs y endpoints base ===
-BASE_URL = "http://armsqastag2"
-TOKEN_URL = f"{BASE_URL}/abms/oauth/token"
-API_BASE = f"{BASE_URL}/abms/api/"
-
-ENDPOINT_ACCOUNT = "accounts"
-ENDPOINT_BILLING_LEDGER = "billing-ledgers"
-ENDPOINT_FLIGHTMOVEMENT = "flightmovements"
-
-MAPEO_TASAS = {
-    ("APOYO", "ARS"): "AAN",
-    ("APOYO", "USD"): "AAI",
-    ("PROTECCION", "ARS"): "PVN",
-    ("PROTECCION", "USD"): "PVI",
-    ("SNA", "ARS"): "EXT",
-    ("SNA", "USD"): "EXTI",
-}
-
-MAPEO_ACCOUNT_TYPES = {
-    "Airline": "AEROLINEAS",
-    "GeneralAviation": "AVIACION GENERAL",
-}
-
-MAPEO_ACCOUNT_TYPES_REV = {
-    "Airline": 1,
-    "GeneralAviation": 8,
-}
-
-MAPEO_INVOICE_CONCEPTS = {
-    "INTERNATIONAL/FOREIGN" : "INTERNACIONAL/EXTRANJERO",
-    "INTERNATIONAL/NATIONAL" : "INTERNACIONAL/NACIONAL",
-    "OVERFLIGHT/FOREIGN" : "SOBREVUELO/EXTRANJERO",
-    "OVERFLIGHT/NATIONAL" : "SOBREVUELO/NACIONAL",
-    "DOMESTIC/FOREIGN" : "NACIONAL/EXTRANJERO",
-    "DOMESTIC/NATIONAL" : "NACIONAL/NACIONAL",
-}
-
-COLUMNS_ACCOUNT = [
-    "name", "icao_code","iata_code", "alias","aviation_billing_contact_person_name", "aviation_billing_email_address",
-    "account_type.name","nationality","aircraft_parking_exemption","active","approved_flight_school_indicator",
-    "aviation_billing_sms_number","black_listed_indicator","black_listed_override", "cash_account", "created_at",
-    "created_by","credit_limit","discount_structure","iata_member","id", "invoice_currency","invoice_delivery_format",
-    "invoice_delivery_method", "is_self_care", "monthly_overdue_penalty_rate", "non_aviation_billing_contact_person_name",
-    "non_aviation_billing_email_address", "non_aviation_billing_mailing_address", "non_aviation_billing_phone_number",
-    "non_aviation_billing_sms_number", "notes", "opr_identifier", "payment_terms", "percentage_of_passenger_fee_payable",
-    "separate_pax_invoice", "tax_profile", "updated_at", "updated_by", "version"]
-COLUMNS_BILLING_LEDGER = [
-    "invoice_period_or_date", "invoice_date_of_issue", "account.name", "invoice_type", "flightmovement_category.name",
-    "invoice_number", "invoice_currency.currency_code", "invoice_amount",
-    "invoice_state_type", "billing_center.name", "id"
-]
-COLUMNS_FLIGHTMOVEMENTS = ["invoice_id", "enroute_charges", "approach_charges", "extended_hours_surcharge", "fpl_crossing_distance"]
-
-CLIENT_ID = "abms_external_client"
-CLIENT_SECRET = ""  # <--- Completá esto si aplica
-
-# === Función para autenticación OAuth2 ===
-def get_token_oauth2():
-    username = input("🔑 Ingrese su nombre de usuario: ")
-    password = getpass.getpass("🔑 Ingrese su contraseña: ")
-    payload = {
-        "grant_type": "password",
-        "username": username,
-        "password": password,
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET
-    }
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
-
-    try:
-        response = requests.post(TOKEN_URL, data=payload, headers=headers)
-        response.raise_for_status()
-        token = response.json()["access_token"]
-        print("✅ Token OAuth2 obtenido correctamente.")
-        return token
-    except Exception as e:
-        print(f"❌ Error al obtener token OAuth2: {e}")
 
 # === Función para obtener DataFrame paginado ===
 def get_dataframe_paginado(base_url, columns, headers):
@@ -182,7 +109,6 @@ def generate_total_and_clients(start_date, end_date, tasa_de_cambio):
                     "Fecha de Liquidación": invoice_date,
                     "Período de Liquidación": period_date,
                     "Cliente": datos_factura["account.name"],
-                    #"alias": datos_factura["alias"],
                     "Tipo Cliente": MAPEO_ACCOUNT_TYPES[account_type],
                     "Tipo de Factura": invoice_type,
                     "Concepto Facturado": MAPEO_INVOICE_CONCEPTS.get(invoice_concept, "DESCONOCIDO"),
@@ -199,7 +125,6 @@ def generate_total_and_clients(start_date, end_date, tasa_de_cambio):
                     "Fecha de Liquidación": invoice_date,
                     "Período de Liquidación": period_date,
                     "Cliente": datos_factura["account.name"],
-                    #"alias": datos_factura["alias"],
                     "Tipo Cliente": MAPEO_ACCOUNT_TYPES[account_type],
                     "Tipo de Factura": invoice_type,
                     "Concepto Facturado": MAPEO_INVOICE_CONCEPTS.get(invoice_concept, "DESCONOCIDO"),
@@ -216,7 +141,6 @@ def generate_total_and_clients(start_date, end_date, tasa_de_cambio):
                     "Fecha de Liquidación": invoice_date,
                     "Período de Liquidación": period_date,
                     "Cliente": datos_factura["account.name"],
-                    #"alias": datos_factura["alias"],
                     "Tipo Cliente": MAPEO_ACCOUNT_TYPES[account_type],
                     "Tipo de Factura": invoice_type,
                     "Concepto Facturado": MAPEO_INVOICE_CONCEPTS.get(invoice_concept, "DESCONOCIDO"),

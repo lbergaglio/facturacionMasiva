@@ -2,7 +2,6 @@ from tkinter import messagebox
 import threading
 from config.settings import labels_titulos
 from gui.components import archivos_cargados, solicitar_credenciales_api
-from logic.validators.validator_main import validar_headers_excel
 from logic.validators.validator_api_zeus import validate_completed_clients
 from logic.generators.generator_cross_data import generar_control_interno  # importa el generador
 
@@ -45,7 +44,7 @@ def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=N
     """
     # Generación del archivo de control interno
     try:
-        username, password = solicitar_credenciales_api()
+        username, password = solicitar_credenciales_api("Autenticacíon ZEUS API")
         
         if not username or not password:
             messagebox.showerror("Error", "No se ingresaron credenciales. Proceso cancelado.")

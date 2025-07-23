@@ -17,12 +17,6 @@ root.iconphoto(False, ImageTk.PhotoImage(icono))
 imagen_tk = ImageTk.PhotoImage(imagen)
 tk.Label(root, image=imagen_tk, bg=COLOR_FONDO).pack(pady=10)
 
-# Campos de carga
-#crear_fila(root, "Liquidaciones domésticas PBI:", "liq_dom_pbi", COLOR_FONDO)
-#crear_fila(root, "Liquidaciones internacionales PBI:", "liq_int_pbi", COLOR_FONDO)
-#crear_fila(root, "Clientes Maestros:", "clients_pbi", COLOR_FONDO)
-#crear_fila(root, "Liquidaciones ARMS:", "liq_arms", COLOR_FONDO)
-
 #Campo fecha desde y hasta
 entry_desde,entry_hasta = crear_fila_fecha_desde_hasta(root, "Fecha desde:", "start_date", "end_date", COLOR_FONDO)
 

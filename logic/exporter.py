@@ -14,9 +14,6 @@ def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_summary,
             raise PermissionError(f"No se puede sobrescribir el archivo: {path_salida}. Cerralo si está abierto.")
     
     callback_progress("✅ Exportando archivo... (97%)")
-    # Exportar diferencias con ARMS si hay
-    #if not df_diff_arms.empty:
-    #    df_diff_arms.to_excel("salida/diferencias_con_arms.xlsx", index=False)
 
     callback_progress("✅ Exportando archivo... (98%)")
     
@@ -60,6 +57,4 @@ def exportar_control_interno(df_total, df_total_per_liq, df_balance, df_summary,
                 for row in range(2, len(df_total_per_liq) + 2):
                     ws_agrupado.cell(row=row, column=col_idx).number_format = 'DD/MM/YYYY'
         
-        
-
     return path_salida, df_total

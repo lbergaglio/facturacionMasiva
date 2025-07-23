@@ -3,18 +3,6 @@ import pandas as pd
 from datetime import datetime
 from logic.api_access.api_zeus_df import get_dataframes_from_zeus
 
-MASIVE_IMPORT_MADATORY_COLUMNS = [
-    "Pedidos.Código de cliente", "Pedidos.Sucursal", "Pedidos.Punto de venta", "Pedidos.Letra",
-    "Pedidos.Código de moneda del comprobante", "Pedidos.Valor de moneda del comprobante", 
-    "Pedidos.Códgio de depósito del comprobante", "Pedidos.Código de condición de venta del comprobante",
-    "Pedidos.Código de vendedor", "Pedidos.Lista de precios del comprobante", 
-    "Pedidos.Exento del comprobante", "Pedidos.Neto gravado del comprobante",
-    "pedidos, Total IVA del comprobante", "Pedidos.Porcentaje de IVA en comprobante",
-    "Pedidos.Observaciones 1", "Pedidos.Precio total del item", "Pedidos.Código de artículo del item",
-    "Pedidos.Cantidad del item", "Pedidos.Código de depósito del item", "Pedidos.Codigo de moneda del item",
-    "Pedidos.Valor de moneda del item", "Pedidos.Fecha del comprobante"
-]
-
 ARS_CODE = 0
 USD_CODE = 2
 
@@ -96,15 +84,8 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,d
         axis=1
     )
 
-    """print("Columnas finales en df_total:", df_total.columns.tolist())
-    print("Nulos por columna:\n", df_total[[
-        "alias", "sucursal", "punto_de_venta", "codigo_deposito",
-        "codigo_condicion_venta", "codigo_vendedor", "lista_precio"
-    ]].isnull().sum())
-    """
     # Generación de fecha formato Clarion
     fecha_actual_clarion = fecha_a_clarion(datetime.today())
-
 
     # Generación del DataFrame de importación masiva
     df_masive_import = pd.DataFrame({

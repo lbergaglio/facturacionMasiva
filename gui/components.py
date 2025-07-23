@@ -7,9 +7,9 @@ from datetime import datetime
 
 archivos_cargados = {k: None for k in labels_titulos.keys()}
 
-def solicitar_credenciales_api():
+def solicitar_credenciales_api(texto):
     ventana = tk.Toplevel()
-    ventana.title("Autenticación Zeus API")
+    ventana.title(texto)
     ventana.geometry("300x170")
     ventana.configure(bg=COLOR_FONDO)
     ventana.resizable(False, False)
