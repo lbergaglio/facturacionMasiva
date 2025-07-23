@@ -1,12 +1,13 @@
 import requests
+import getpass
 from config.settings_api_arms import TOKEN_URL, CLIENT_ID, CLIENT_SECRET
 from gui.components import solicitar_credenciales_api
 
 # === Función para autenticación OAuth2 ===
 def get_token_oauth2():
-    username, password = solicitar_credenciales_api("Autenticación ARMS API")
-    #username = input("🔑 Ingrese su nombre de usuario: ")
-    #password = getpass.getpass("🔑 Ingrese su contraseña: ")
+    #username, password = solicitar_credenciales_api("Autenticación ARMS API")
+    username = input("🔑 Ingrese su nombre de usuario: ")
+    password = getpass.getpass("🔑 Ingrese su contraseña: ")
     payload = {
         "grant_type": "password",
         "username": username,
