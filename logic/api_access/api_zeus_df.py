@@ -2,8 +2,6 @@
 import requests
 import pandas as pd
 
-from gui.components import solicitar_credenciales_api
-
 def get_dataframe(url, columns, headers):
     print(f"🔸 Consultando {url}")
     try:
