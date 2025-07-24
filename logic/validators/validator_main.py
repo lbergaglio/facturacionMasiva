@@ -2,31 +2,12 @@ import os
 import pandas as pd
 
 HEADERS_ESPERADOS = {
-    "powerbi_domestico": [
-        "Fecha de Liquidación", "Período de Liquidación", "Cliente", "Tipo Cliente", "Tipo de Factura",
-        "Concepto Facturado", "Número", "Moneda de Liquidación", "Tasa", "Servicios", "Monto", "Km", "id"
-    ],
-    "powerbi_internacional": [
-        "Fecha de Liquidación", "Período de Liquidación", "Cliente", "Tipo Cliente", "Tipo de Factura",
-        "Concepto Facturado", "Número", "Moneda de Liquidación", "Tasa", "Servicios", "Monto", "Km", "id"
-    ],
     "clientes_maestros": [
-        "name", "icao_code", "iata_code", "alias", "aviation_billing_contact_person_name",
-        "aviation_billing_phone_number", "aviation_billing_mailing_address", "aviation_billing_email_address",
-        "account_type", "nationality", "aircraft_parking_exemption", "active", "approved_flight_school_indicator",
-        "aviation_billing_sms_number", "black_listed_indicator", "black_listed_override", "cash_account",
-        "created_at", "created_by", "credit_limit", "discount_structure", "iata_member", "id",
-        "invoice_currency", "invoice_delivery_format", "invoice_delivery_method", "is_self_care",
-        "monthly_overdue_penalty_rate", "non_aviation_billing_contact_person_name",
-        "non_aviation_billing_email_address", "non_aviation_billing_mailing_address",
-        "non_aviation_billing_phone_number", "non_aviation_billing_sms_number", "notes", "opr_identifier",
-        "payment_terms", "percentage_of_passenger_fee_payable", "separate_pax_invoice", "tax_profile",
-        "updated_at", "updated_by", "version"
-    ],
-    "liquidaciones_arms": [
-        "Account", "Invoice Number", "Invoice Date", "Invoice Type", "Status", "Payment Due Date",
-        "Created By", "Invoice Amount", "Invoice Currency", "Exchange Rate To USD", "Invoice Date Of Issue",
-        "Proforma", "Exported", "Billing Centre"
+        "Clientes.Categorias.CodigoZeus", "Clientes.Categorias.Descripcion", "CodigoZeus", "CondicionVenta", 
+        "NombreCondVta", "CuentaId", "CUIT", "DepositoId", "NombreDeposito", "Descripcion", "DetalleAeronave", 
+        "Domicilio", "Fantasía", "IdCliente", "ListaPrecioId", "NombreLista", "LocalidadId", "NombreLocalidad", 
+        "Notas", "PaisId", "NombrePaís", "ProvinciaId", "NombreProvincia", "SituaciónIvaId", "DescripciónIVA", 
+        "Email", "Activo"         
     ]
 }
 
@@ -40,7 +21,7 @@ def validar_headers_excel(filepath, tipo_archivo):
         else:
             if filepath.lower().endswith(".csv"):
                 return False, f"El archivo para {tipo_archivo} debe ser .xls o .xlsx"
-            df = pd.read_excel(filepath)
+            df = pd.read_excel(filepath, header=6)
     except Exception as e:
         return False, f"No se pudo leer el archivo: {e}"
 
@@ -61,8 +42,15 @@ def validar_headers_excel(filepath, tipo_archivo):
             f"Faltantes: {faltantes}\nExtra: {extra}"
         )
 
+    if tipo_archivo == "clientes_maestros":
+        # Validaciones específicas para clientes maestros
+        if not df['id'].apply(lambda x: isinstance(x, int) and x > 0).all():
+            return False, "La columna 'id' debe ser numérica y mayor a 0."
+        if not df['name'].apply(lambda x: isinstance(x, str) and len(x) > 0).all():
+            return False, "La columna 'name' debe contener nombres válidos."
+
     # Validaciones adicionales
-    if tipo_archivo in ["powerbi_domestico", "powerbi_internacional"]:
+    """if tipo_archivo in ["powerbi_domestico", "powerbi_internacional"]:
         col = "Moneda de Liquidación"
         esperado_valor = "ARS" if tipo_archivo == "powerbi_domestico" else "USD"
         if col not in df.columns:
@@ -83,5 +71,5 @@ def validar_headers_excel(filepath, tipo_archivo):
                 pd.to_datetime(df[col])
             except:
                 return False, f"La columna '{col}' contiene valores no reconocidos como fechas."
-
+"""
     return True, "Archivo válido."

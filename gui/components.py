@@ -42,9 +42,9 @@ def solicitar_credenciales_api(texto):
 
 def crear_fila_fecha_desde_hasta(root, texto_titulo, clave_desde, clave_hasta, bg_color):
     frame = tk.Frame(root, bg=bg_color)
-    frame.pack(pady=10, padx=30, anchor="w")
+    frame.pack(pady=10, padx=25, anchor="w")
 
-    titulo = tk.Label(frame, text=texto_titulo, width=30, anchor="w", bg=bg_color, font=("Arial", 10, "bold"), fg="#ffffff")
+    titulo = tk.Label(frame, text=texto_titulo, width=25, anchor="w", bg=bg_color, font=("Arial", 10, "bold"), fg="#ffffff")
     titulo.pack(side="left")
 
     entry_desde = DateEntry(
@@ -55,7 +55,7 @@ def crear_fila_fecha_desde_hasta(root, texto_titulo, clave_desde, clave_hasta, b
         borderwidth=2,
         date_pattern='yyyy-mm-dd'
     )
-    entry_desde.pack(side="left", padx=(5, 0))
+    entry_desde.pack(side="left", padx=(0, 0))
 
     entry_hasta = DateEntry(
         frame,
@@ -65,7 +65,7 @@ def crear_fila_fecha_desde_hasta(root, texto_titulo, clave_desde, clave_hasta, b
         borderwidth=2,
         date_pattern='yyyy-mm-dd'
     )
-    entry_hasta.pack(side="left", padx=(5, 10))
+    entry_hasta.pack(side="left", padx=(0, 20))
 
     archivos_cargados[clave_desde] = entry_desde.get_date().strftime("%Y-%m-%d")
     archivos_cargados[clave_hasta] = entry_hasta.get_date().strftime("%Y-%m-%d")
@@ -94,12 +94,12 @@ def cargar_archivo(label_destino, clave):
 
 def crear_fila(root, texto_titulo, clave, bg_color):
     frame = tk.Frame(root, bg=bg_color)
-    frame.pack(pady=10, padx=30, anchor="w")
+    frame.pack(pady=10, padx=20, anchor="w")
 
-    titulo = tk.Label(frame, text=texto_titulo, width=30, anchor="w", bg=bg_color, font=("Arial", 10,"bold"), fg="#ffffff")
+    titulo = tk.Label(frame, text=texto_titulo, width=25, anchor="w", bg=bg_color, font=("Arial", 10,"bold"), fg="#ffffff")
     titulo.pack(side="left")
 
-    label_ruta = tk.Label(frame, text="No se seleccionó archivo", bg="#ffffff", width=50, anchor="w", relief="sunken")
+    label_ruta = tk.Label(frame, text="No se seleccionó archivo", bg="#ffffff", width=30, anchor="w", relief="sunken")
     label_ruta.pack(side="left", padx=5)
 
     boton = tk.Button(frame, text="Cargar archivo", command=lambda: cargar_archivo(label_ruta, clave))

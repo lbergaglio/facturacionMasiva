@@ -20,14 +20,17 @@ tk.Label(root, image=imagen_tk, bg=COLOR_FONDO).pack(pady=10)
 #Campo fecha desde y hasta
 entry_desde,entry_hasta = crear_fila_fecha_desde_hasta(root, "Fecha desde:", "start_date", "end_date", COLOR_FONDO)
 
-print("Fecha desde:", entry_desde.get_date())
-print("Fecha hasta:", entry_hasta.get_date())
+# Campo de selección de archivos
+crear_fila(root, "Archivo clientes:", "clients_zeus", COLOR_FONDO)
+
+#print("Fecha desde:", entry_desde.get_date())
+#print("Fecha hasta:", entry_hasta.get_date())
 
 # Campo tipo de cambio
 frame_tc = tk.Frame(root, bg=COLOR_FONDO)
-frame_tc.pack(pady=20, padx=30, anchor="w")
+frame_tc.pack(pady=10, padx=20, anchor="w")
 
-tk.Label(frame_tc, text="Tipo de cambio utilizado:", width=30, anchor="w",
+tk.Label(frame_tc, text="Tipo de cambio utilizado:", width=25, anchor="w",
          bg=COLOR_FONDO, font=("Arial", 10, "bold"), fg="#ffffff").pack(side="left")
 entry_tipo_cambio = tk.Entry(frame_tc, width=20)
 entry_tipo_cambio.pack(side="left", padx=5)
@@ -55,11 +58,10 @@ def update_progress(texto):
     label_spinner.config(text=texto)
     label_spinner.update_idletasks()
 
-
 def ejecutar_con_spinner():
     def tarea():
         try:
-            validar_y_generar(entry_tipo_cambio.get(), entry_desde.get_date(),entry_hasta.get_date(), callback_progress=update_progress)
+            validar_y_generar(df_clients_zeus,entry_tipo_cambio.get(), entry_desde.get_date(),entry_hasta.get_date(), callback_progress=update_progress)
         finally:
             spinner.stop()
             spinner.pack_forget()
