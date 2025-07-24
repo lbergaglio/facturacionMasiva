@@ -6,7 +6,7 @@ from gui.components import solicitar_credenciales_api
 from logic.api_access.tokens.arms_token import get_token_oauth2
 from config.settings_api_arms import TOKEN_URL, API_BASE, ENDPOINT_ACCOUNT, ENDPOINT_BILLING_LEDGER, \
     ENDPOINT_FLIGHTMOVEMENT, MAPEO_TASAS, MAPEO_ACCOUNT_TYPES, MAPEO_ACCOUNT_TYPES_REV, MAPEO_INVOICE_CONCEPTS, \
-    COLUMNS_ACCOUNT, COLUMNS_BILLING_LEDGER, COLUMNS_FLIGHTMOVEMENTS, CLIENT_ID, CLIENT_SECRET
+    COLUMNS_ACCOUNT, COLUMNS_BILLING_LEDGER, COLUMNS_FLIGHTMOVEMENTS
 
 # === Configuración de Pandas ===
 pd.set_option("display.max_colwidth", None)
@@ -82,7 +82,12 @@ def generate_total_and_clients(start_date, end_date, tasa_de_cambio):
             account_type = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id]["account_type.name"].iloc[0]
 
             invoice_type = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id]["invoice_type"].iloc[0]
-            invoice_concept = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id]["flightmovement_category.name"].iloc[0]
+            
+            # Verifica si la columna existe en el DataFrame antes de acceder a ella
+            if "flightmovement_category.name" in df_billing_ledgers.columns:
+                invoice_concept = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id]["flightmovement_category.name"].fillna("DESCONOCIDO").iloc[0]
+            else:
+                invoice_concept = "DESCONOCIDO"
 
             approach_qty = df_flightmovements["approach_charges"].gt(0).sum()
             approach_amount = df_flightmovements["approach_charges"].sum()

@@ -71,7 +71,7 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,d
 
     # ELIMINAR DUPLICADOS por cliente y sucursal, dejando un punto de venta
     df_total = (
-        df_total.drop_duplicates(subset=["alias", "sucursal","tasa"], keep="first")
+        df_total.drop_duplicates(subset=["alias", "sucursal","tasa","numero de liquidacion"], keep="first")
     )
 
     # Cálculo de campos
@@ -92,6 +92,7 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,d
         "Pedidos.Código de cliente": df_total["alias"],
         "Pedidos.Sucursal": df_total["sucursal"],
         "Pedidos.Punto de venta": df_total["punto_de_venta"],
+        "Pedidos.Número de comprobante": df_total["numero de liquidacion"].str.replace("Liq", "00", case=False, regex=True),
         "Pedidos.Letra": "B",
         "Pedidos.Código de moneda del comprobante": df_total["codigo_moneda"],
         "Pedidos.Valor de moneda del comprobante": 1,
