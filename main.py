@@ -61,7 +61,7 @@ def update_progress(texto):
 def ejecutar_con_spinner():
     def tarea():
         try:
-            validar_y_generar(df_clients_zeus,entry_tipo_cambio.get(), entry_desde.get_date(),entry_hasta.get_date(), callback_progress=update_progress)
+            validar_y_generar(entry_tipo_cambio.get(), entry_desde.get_date(),entry_hasta.get_date(), callback_progress=update_progress)
         finally:
             spinner.stop()
             spinner.pack_forget()

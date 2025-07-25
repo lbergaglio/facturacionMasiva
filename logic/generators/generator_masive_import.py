@@ -10,11 +10,12 @@ def fecha_a_clarion(fecha: datetime) -> int:
     base = datetime(1800, 12, 28)
     return (fecha - base).days
 
-def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,df_clientes_zeus, username, password):
-    df_vendedores_zeus, df_parametros_zeus = get_dataframes_from_zeus(username, password)
+def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,df_clientes_zeus):
+    #df_clientes_zeus, df_parametros_zeus = get_dataframes_from_zeus(username, password)
+    print("DF_CLIENTES_ZEUS_MASIVE",df_clientes_zeus)
 
     # Normalizar nombres de columnas
-    for df in [df_total, df_total_per_liq, df_clients, df_clientes_zeus, df_vendedores_zeus, df_parametros_zeus]:
+    for df in [df_total, df_total_per_liq, df_clients, df_clientes_zeus, df_clientes_zeus]:
         df.columns = df.columns.str.strip().str.lower()
     
     # Validación de columnas necesarias
@@ -54,25 +55,25 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,d
         how="left"
     )
 
-    # Normalizar para merge con vendedores
+    """# Normalizar para merge con vendedores
     df_total["centro de facturacion"] = df_total["centro de facturacion"].str.strip().str.lower()
-    df_vendedores_zeus["nombre"] = df_vendedores_zeus["nombre"].str.strip().str.lower()
+    df_clientes_zeus["nombre"] = df_clientes_zeus["nombre"].str.strip().str.lower()
 
     # Merge con vendedores
     df_total = df_total.merge(
-        df_vendedores_zeus[["nombre", "sucursal", "codigo_vendedor"]],
+        df_clientes_zeus[["nombre", "sucursal", "codigo_vendedor"]],
         how="left",
         left_on="centro de facturacion",
         right_on="nombre"
     )
-
+    """
     # Merge con parámetros (punto de venta, depósito, condición de venta, lista de precios)
-    df_total = df_total.merge(df_parametros_zeus, how="left", on="sucursal")
+    #df_total = df_total.merge(df_parametros_zeus, how="left", on="sucursal")
 
     
     # ELIMINAR DUPLICADOS por cliente y sucursal, dejando un punto de venta
     df_total = (
-        df_total.drop_duplicates(subset=["alias", "sucursal","tasa","numero de liquidacion"], keep="first")
+        df_total.drop_duplicates(subset=["alias","tasa","numero de liquidacion"], keep="first")
     )
 
     # Cálculo de campos
@@ -88,18 +89,20 @@ def generate_masive_import(df_total, df_total_per_liq, df_clients, tasa_cambio,d
     # Generación de fecha formato Clarion
     fecha_actual_clarion = fecha_a_clarion(datetime.today())
 
+    print(df_total)
+
     # Generación del DataFrame de importación masiva
     df_masive_import = pd.DataFrame({
         "Pedidos.Código de cliente": df_total["alias"],
-        "Pedidos.Sucursal": df_total["sucursal"],
-        "Pedidos.Punto de venta": df_total["punto_de_venta"],
-        "Pedidos.Número de comprobante": df_total["numero de liquidacion"],
+        "Pedidos.Sucursal": 1,
+        "Pedidos.Punto de venta": 1,
+        "Pedidos.Número de comprobante": df_total["numero de liquidacion"].str.replace("Liq", "00", case=False, regex=True),
         "Pedidos.Letra": "B",
         "Pedidos.Código de moneda del comprobante": df_total["codigo_moneda"],
         "Pedidos.Valor de moneda del comprobante": 1,
         "Pedidos.Códgio de depósito del comprobante": df_total["codigo_deposito"],
         "Pedidos.Código de condición de venta del comprobante": df_total["codigo_condicion_venta"],
-        "Pedidos.Código de vendedor": df_total["codigo_vendedor"],
+        "Pedidos.Código de vendedor": 1,
         "Pedidos.Lista de precios del comprobante": df_total["lista_precio"],
         "Pedidos.Exento del comprobante": df_total["monto_pesificado"],
         "Pedidos.Neto gravado del comprobante": 0,

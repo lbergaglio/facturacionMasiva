@@ -7,12 +7,7 @@ def cargar_archivos():
     Retorna cuatro DataFrames: df_dom, df_int, df_clients, df_arms.
     """
     try:
-        df_clients = pd.read_excel(archivos_cargados['clients_pbi'])
-
-        if archivos_cargados['liq_arms'].endswith(".xlsx"):
-            df_arms = pd.read_excel(archivos_cargados['liq_arms'])
-        else:
-            df_arms = pd.read_csv(archivos_cargados['liq_arms'])
+        df_clients = pd.read_excel(archivos_cargados['clients_zeus'],skiprows=6)
 
         return df_clients
 
