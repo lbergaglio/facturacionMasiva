@@ -9,6 +9,8 @@ root.title(TITULO_APP)
 root.geometry(DIMENSION_GRAFICA)
 root.configure(bg=COLOR_FONDO)
 
+#Nuevo branch
+
 # Logo e icono
 root.resizable(False, False)
 imagen = Image.open(URL_LOGO).resize((DIMENSION_LOGO_ANCHO, DIMENSION_LOGO_ALTO))
