@@ -4,15 +4,19 @@ from datetime import datetime
 from gui.components import archivos_cargados
 import tkinter.messagebox as messagebox
 from logic.parse_inputs import cargar_archivos
-#from logic.validators.validator_api_zeus import validate_completed_columns
 from logic.exporter import exportar_control_interno
 from logic.api_access.api_arms_df import generate_total_and_clients
+
+from logic.validators.validator_invoice_number import validate_last_invoice_number
+#from logic.validators.validator_arms import validar_y_comparar_con_armss
+#from logic.validators.validator_api_zeus import validate_completed_columns
+
 from logic.generators.generator_total_per_liq import generate_page_total_per_liq
-#from logic.validators.validator_arms import validar_y_comparar_con_arms
 from logic.generators.generator_balance_liq import generate_page_balance_liq
 from logic.generators.generator_summary import generate_page_summary
 from logic.generators.generator_tesoreria import generate_page_tesoreria
 from logic.generators.generator_masive_import import generate_masive_import
+
 
 # Ruta de salida para el archivo generado
 PATH_SALIDA = "salida/control_interno.xlsx"
@@ -23,18 +27,24 @@ def validar_dataframe(archivo):
     df = pd.read_excel(archivo,skiprows=6)
 
 
-def generar_control_interno(tipo_cambio,callback_progress,df_clientes_zeus,start_date,end_date):
+def generar_control_interno(tipo_cambio,last_invoice_number,callback_progress,df_clientes_zeus,start_date,end_date):
      # === Lectura de archivos de entrada ===
     try:
         callback_progress("✅ Cargando archivos... (30%)")
 
         #df_clientes_zeus = cargar_archivos()
         #missing_columns = validate_completed_columns(df_clients_zeus, MANDATORY_COLUMNS)
+    
         callback_progress("✅ Cruzando archivos... (35%)")
 
         # === Generación de la hoja "total" del archivo de control interno ===
         df_total,df_clients = generate_total_and_clients(start_date,end_date, tipo_cambio)
         callback_progress("✅ Cruzando archivos... (45%)")
+
+        # === Validar Numeración de Facturas ===
+        """if not validate_last_invoice_number(df_total,last_invoice_number):
+            callback_progress("❌ Error en la numeración de facturas")
+            return False        """
 
         # === Generación de la hoja "total por liquidación" del archivo de control interno ===
         df_total_per_liq = generate_page_total_per_liq(df_total, tipo_cambio)

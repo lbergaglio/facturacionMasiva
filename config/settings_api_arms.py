@@ -49,7 +49,7 @@ COLUMNS_BILLING_LEDGER = [
     "invoice_number", "invoice_currency.currency_code", "invoice_amount",
     "invoice_state_type", "billing_center.name", "id"
 ]
-COLUMNS_FLIGHTMOVEMENTS = ["invoice_id", "enroute_charges", "approach_charges", "extended_hours_surcharge", "fpl_crossing_distance"]
+COLUMNS_FLIGHTMOVEMENTS = ["invoice_id", "enroute_charges", "approach_charges", "extended_hours_surcharge", "fpl_crossing_distance","exempt_enroute_charges","exempt_approch_charges","exempt_extended_hours_surcharge"]
 
 CLIENT_ID = "abms_external_client"
 CLIENT_SECRET = ""

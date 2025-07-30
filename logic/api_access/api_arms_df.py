@@ -27,7 +27,7 @@ def get_dataframe_paginado(base_url, columns, headers):
             resp = requests.get(url, headers=headers)
             resp.raise_for_status()
             data = resp.json()
-
+            
             if "content" in data and isinstance(data["content"], list):
                 all_data.extend(data["content"])
                 if data.get("last", True):
@@ -90,15 +90,15 @@ def generate_total_and_clients(start_date, end_date, tasa_de_cambio):
                 invoice_concept = "DESCONOCIDO"
 
             approach_qty = df_flightmovements["approach_charges"].gt(0).sum()
-            approach_amount = df_flightmovements["approach_charges"].sum()
+            approach_amount = df_flightmovements["approach_charges"].sum()# - df_flightmovements["exempt_approch_charges"].sum()
             approach_distance = 0
 
             protection_qty = df_flightmovements["enroute_charges"].gt(0).sum()
-            protection_amount = df_flightmovements["enroute_charges"].sum()
+            protection_amount = df_flightmovements["enroute_charges"].sum()# - df_flightmovements["exempt_enroute_charges"].sum()
             protection_distance = df_flightmovements["fpl_crossing_distance"].sum() if "fpl_crossing_distance" in df_flightmovements.columns else 0
 
             sna_qty = df_flightmovements["extended_hours_surcharge"].gt(0).sum()
-            sna_amount = df_flightmovements["extended_hours_surcharge"].sum()
+            sna_amount = df_flightmovements["extended_hours_surcharge"].sum()# - df_flightmovements["exempt_extended_hours_surcharge"].sum()
             sna_distance = 0
 
             datos_factura = df_billing_ledgers[df_billing_ledgers["id"] == invoice_id].iloc[0]
@@ -160,6 +160,7 @@ def generate_total_and_clients(start_date, end_date, tasa_de_cambio):
             ])
 
         df_final = pd.DataFrame(resultados)
+        #df_final = df_final.sort_values(by="Número de Liquidacion")
         df_final.to_excel("reporte_facturas_servicios.xlsx", index=False)
         df_accounts.to_excel("reporte_clientes.xlsx", index=False)
         return df_final, df_accounts

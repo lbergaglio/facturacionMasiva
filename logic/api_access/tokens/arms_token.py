@@ -1,3 +1,4 @@
+#import getpass
 import requests
 from config.settings_api_arms import TOKEN_URL, CLIENT_ID, CLIENT_SECRET
 from gui.components import solicitar_credenciales_api
@@ -20,7 +21,11 @@ def get_token_oauth2():
         response = requests.post(TOKEN_URL, data=payload, headers=headers)
         response.raise_for_status()
         token = response.json()["access_token"]
+        print(token)
         print("✅ Token OAuth2 obtenido correctamente.")
         return token
     except Exception as e:
         print(f"❌ Error al obtener token OAuth2: {e}")
+
+
+#get_token_oauth2()

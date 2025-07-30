@@ -73,7 +73,7 @@ def validate_generate_dataframe(df, columns):
         return dfrenamed,missing_columns
 
 
-def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=None):
+def validar_y_generar(tipo_cambio_str, last_invoice_number_str,start_date, end_date, callback_progress=None):
     if not tipo_cambio_str:
         messagebox.showwarning("Campo requerido", "Debe ingresar un tipo de cambio.")
         return
@@ -82,6 +82,16 @@ def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=N
         tipo_cambio_float = float(tipo_cambio_str)
     except ValueError:
         messagebox.showerror("Valor inválido", "El tipo de cambio debe ser un número.")
+        return
+    
+    if not last_invoice_number_str:
+        messagebox.showwarning("Campo requerido", "Debe ingresar el último número de factura.")
+        return
+
+    try:
+        last_invoice_number_float = float(last_invoice_number_str)
+    except ValueError:
+        messagebox.showerror("Valor inválido", "El número de factura debe ser un número.")
         return
 
     # Verificar archivo cargado
@@ -107,7 +117,7 @@ def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=N
 
     df_clientes_zeus, missing_columns = validate_generate_dataframe(df, MANDATORY_COLUMNS)
 
-    print("DF_CLIENTES_ZEUS_GENERATOR",df_clientes_zeus)
+    #print("DF_CLIENTES_ZEUS_GENERATOR",df_clientes_zeus)
 
     #if missing_columns:
     #    errores = "\n".join(missing_columns)
@@ -132,6 +142,7 @@ def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=N
             #username,
             #password,
             tipo_cambio_float,
+            last_invoice_number_float,
             callback_progress,
             df_clientes_zeus,
             start_date,

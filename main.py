@@ -23,9 +23,6 @@ entry_desde,entry_hasta = crear_fila_fecha_desde_hasta(root, "Fecha desde:", "st
 # Campo de selección de archivos
 crear_fila(root, "Archivo clientes:", "clients_zeus", COLOR_FONDO)
 
-#print("Fecha desde:", entry_desde.get_date())
-#print("Fecha hasta:", entry_hasta.get_date())
-
 # Campo tipo de cambio
 frame_tc = tk.Frame(root, bg=COLOR_FONDO)
 frame_tc.pack(pady=10, padx=20, anchor="w")
@@ -35,9 +32,18 @@ tk.Label(frame_tc, text="Tipo de cambio utilizado:", width=25, anchor="w",
 entry_tipo_cambio = tk.Entry(frame_tc, width=20)
 entry_tipo_cambio.pack(side="left", padx=5)
 
+# Campo numeración de comprobante
+frame_nc = tk.Frame(root, bg=COLOR_FONDO)
+frame_nc.pack(pady=10, padx=20, anchor="w")
+
+tk.Label(frame_nc, text="Último número de factura:", width=25, anchor="w",
+         bg=COLOR_FONDO, font=("Arial", 10, "bold"), fg="#ffffff").pack(side="left")
+entry_num_comprobante = tk.Entry(frame_nc, width=20)
+entry_num_comprobante.pack(side="left", padx=5)
+
 # Botón generar
 btn_generar = tk.Button(root, text="Generar archivos", font=("Arial", 11, "bold"),
-                        bg=COLOR_BOTON, fg="white", command=lambda: validar_y_generar(entry_tipo_cambio.get()))
+                        bg=COLOR_BOTON, fg="white", command=lambda: validar_y_generar(entry_tipo_cambio.get(), entry_num_comprobante.get()))
 btn_generar.pack(pady=30)
 
 from tkinter import ttk
@@ -61,7 +67,7 @@ def update_progress(texto):
 def ejecutar_con_spinner():
     def tarea():
         try:
-            validar_y_generar(entry_tipo_cambio.get(), entry_desde.get_date(),entry_hasta.get_date(), callback_progress=update_progress)
+            validar_y_generar(entry_tipo_cambio.get(), entry_num_comprobante.get(),entry_desde.get_date(),entry_hasta.get_date(), callback_progress=update_progress)
         finally:
             spinner.stop()
             spinner.pack_forget()
