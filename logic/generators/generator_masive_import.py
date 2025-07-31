@@ -1,7 +1,7 @@
 # Generador de Archivo de importación masiva
 import pandas as pd
 from datetime import datetime
-from logic.api_access.api_zeus_df import get_dataframes_from_zeus
+from logic.connections.api_zeus_df import get_dataframes_from_zeus
 
 ARS_CODE = 0
 USD_CODE = 2

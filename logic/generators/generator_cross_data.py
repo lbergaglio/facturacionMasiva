@@ -5,7 +5,7 @@ from gui.components import archivos_cargados
 import tkinter.messagebox as messagebox
 from logic.parse_inputs import cargar_archivos
 from logic.exporter import exportar_control_interno
-from logic.api_access.api_arms_df import generate_total_and_clients
+from logic.connections.api_arms_df import generate_total_and_clients
 
 from logic.validators.validator_invoice_number import validate_last_invoice_number
 #from logic.validators.validator_arms import validar_y_comparar_con_armss

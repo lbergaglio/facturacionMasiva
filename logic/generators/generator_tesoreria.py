@@ -1,5 +1,6 @@
 import pandas as pd
 import unicodedata
+from logic.connections.db_portal_clientes import get_billing_and_due_date
 
 def limpiar_columna(col):
     col = col.strip()
@@ -21,6 +22,18 @@ def generate_page_tesoreria(df_total, df_clients):
     alias_map = dict(zip(df_clients['name'], df_clients['alias']))
     rows = []
 
+    invoice_list = df_total['numero de liquidacion'].unique().tolist()
+
+    print("Invoice list:",invoice_list)
+
+    df_fechas, _ = get_billing_and_due_date(invoice_list)
+
+    print("LLEGUE 2")
+
+    df_total = df_total.merge(df_fechas, on='numero de liquidacion', how='left')
+    
+    print("LLEGUE 3")
+
     for (num_liq, cliente), grupo in df_total.groupby(['numero de liquidacion', 'cliente']):
         fila = {
             'Alias': alias_map.get(cliente, ''),
@@ -36,8 +49,8 @@ def generate_page_tesoreria(df_total, df_clients):
             'SNA INT': grupo.loc[grupo['tasa'] == 'EXTI', 'monto'].sum(),
             'EMISIÓN': grupo['fecha de liquidacion'].iloc[0],
             'SERVICIO': grupo['fecha de liquidacion'].iloc[0],
-            'ENVIO MAIL': '',
-            'FECHA DE VENCIMIENTO':''
+            'ENVIO MAIL': grupo['fecha de liquidacion'].iloc[0],
+            'FECHA DE VENCIMIENTO': grupo['fecha de vencimiento'].iloc[0]
         }
         rows.append(fila)
 
