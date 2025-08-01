@@ -20,12 +20,12 @@ def get_billing_and_due_date(invoice_number_list):
     conn = get_connection(username,password)
     cursor = conn.cursor()
     missing_invoice_number = []
-    df_billing_and_due_date = pd.DataFrame(columns=['numero de liquidacion', 'fecha de vencimiento'])
+    df_billing_and_due_date = pd.DataFrame(columns=['numero de liquidacion', 'fecha de emision', 'fecha de vencimiento'])
     for invoice_number in invoice_number_list:
-        cursor.execute("SELECT nro_liquidacion,fecha_vencimiento FROM dbo.liquidacion WHERE nro_liquidacion = ?", invoice_number)
+        cursor.execute("SELECT nro_liquidacion, fecha_liquidacion ,fecha_vencimiento FROM dbo.liquidacion WHERE nro_liquidacion = ?", invoice_number)
         row = cursor.fetchone()
         if row:
-            df_billing_and_due_date.loc[len(df_billing_and_due_date)] = [row[0], row[1]]
+            df_billing_and_due_date.loc[len(df_billing_and_due_date)] = [row[0], row[1],row[2]]
         else:
             print(f"No se encontró la factura {invoice_number}")
             missing_invoice_number.append(invoice_number)
