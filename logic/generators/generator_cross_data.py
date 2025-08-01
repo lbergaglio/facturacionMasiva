@@ -4,7 +4,7 @@ from datetime import datetime
 from gui.components import archivos_cargados
 import tkinter.messagebox as messagebox
 from logic.exporter import exportar_control_interno
-from logic.api_access.api_arms_df import generate_total_and_clients
+from logic.connections.api_arms_df import generate_total_and_clients
 from logic.generators.generator_total_per_liq import generate_page_total_per_liq
 from logic.validators.validator_arms import validar_y_comparar_con_arms
 from logic.generators.generator_balance_liq import generate_page_balance_liq

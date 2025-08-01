@@ -10,7 +10,7 @@ username = input("Ingrese email: ")
 password = getpass.getpass("Ingrese contraseña: ")
 
 # === FUNCIÓN PARA OBTENER DATAFRAME DE SHAREPOINT ===
-def get_dataframe_sharepoint():
+def get_dataframe_sharepoint(invoice_list):
     
     # === AUTENTICACIÓN ===
     ctx_auth = AuthenticationContext(URL)
@@ -33,9 +33,9 @@ def get_dataframe_sharepoint():
             fecha_venc = pd.to_datetime(fecha_venc).date() if fecha_venc else None
 
             datos.append({
-                "Liquidacion": item.properties.get("Liquidacion"),
-                "Fecha de Envio": fecha_envio,
-                "Fecha de Vencimiento": fecha_venc
+                "numero de liquidacion": item.properties.get("Liquidacion"),
+                "fecha de emision": fecha_envio,
+                "fecha de vencimiento": fecha_venc
             })
 
         # === CONVERTIR A DATAFRAME Y MOSTRAR ===
