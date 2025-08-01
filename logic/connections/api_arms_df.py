@@ -3,7 +3,7 @@ import pandas as pd
 import getpass
 from tqdm import tqdm
 from gui.components import solicitar_credenciales_api
-from logic.api_access.tokens.arms_token import get_token_oauth2
+from logic.connections.tokens.arms_token import get_token_oauth2
 from config.settings_api_arms import TOKEN_URL, API_BASE, ENDPOINT_ACCOUNT, ENDPOINT_BILLING_LEDGER, \
     ENDPOINT_FLIGHTMOVEMENT, MAPEO_TASAS, MAPEO_ACCOUNT_TYPES, MAPEO_ACCOUNT_TYPES_REV, MAPEO_INVOICE_CONCEPTS, \
     COLUMNS_ACCOUNT, COLUMNS_BILLING_LEDGER, COLUMNS_FLIGHTMOVEMENTS
