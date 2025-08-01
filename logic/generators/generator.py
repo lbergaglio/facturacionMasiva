@@ -3,56 +3,48 @@ import threading
 from config.settings import labels_titulos
 from gui.components import archivos_cargados, solicitar_credenciales_api
 from logic.validators.validator_api_zeus import validate_completed_clients
-from logic.generators.generator_cross_data import generar_control_interno  # importa el generador
+from logic.generators.generator_cross_data import generar_control_interno
 
-TIPO_MAPEO = {
-    "liq_dom_pbi": "powerbi_domestico",
-    "liq_int_pbi": "powerbi_internacional",
-    "clients_pbi": "clientes_maestros",
-    "liq_arms": "liquidaciones_arms"
-}
-
-def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=None):
-    faltantes = [k for k, v in archivos_cargados.items() if v is None]
-
-    if not tipo_cambio_str:
+def validate_exchange_rate(exchange_rate):
+    # Si no hay un tipo de cambio cargado, se solicita ingreso del mismo.
+    if not exchange_rate:
         messagebox.showwarning("Campo requerido", "Debe ingresar un tipo de cambio.")
         return
-
+    
+    # Valdación del tipo de cambio ingresado
     try:
-        tipo_cambio_float = float(tipo_cambio_str)
+        tipo_cambio_float = float(exchange_rate)
+        return tipo_cambio_float
     except ValueError:
         messagebox.showerror("Valor inválido", "El tipo de cambio debe ser un número.")
         return
 
-    #if faltantes:
-        mensaje = "Faltan cargar los siguientes archivos:\n"
-        mensaje += "\n".join(f"- {labels_titulos[k]}" for k in faltantes)
-        messagebox.showwarning("Archivos faltantes", mensaje)
-        return
+
+
+# Validador y generador de datos
+def validar_y_generar(tipo_cambio_str, start_date, end_date, callback_progress=None):
+    faltantes = [k for k, v in archivos_cargados.items() if v is None]
     
-    
-    """# Validación de headers
-    for tipo_gui, archivo in archivos_cargados.items():
-        callback_progress("✅ Validando archivos... (10%)")
-        if archivo:
-            tipo_validacion = TIPO_MAPEO.get(tipo_gui, tipo_gui)
-            valido, mensaje = validar_headers_excel(archivo, tipo_validacion)
-            if not valido:
-                messagebox.showerror("Error de validación", f"{labels_titulos[tipo_gui]}: {mensaje}")
-                return
-    """
+    # Valido el tipo de cambio y se transforma de "string" a "float"
+    if validate_exchange_rate(tipo_cambio_str):
+        tipo_cambio_float = validate_exchange_rate(tipo_cambio_str)
+    else: return 
+
     # Generación del archivo de control interno
     try:
+        # Solcito credenciales de API Zeus
         username, password = solicitar_credenciales_api("Autenticacíon ZEUS API")
         
         if not username or not password:
             messagebox.showerror("Error", "No se ingresaron credenciales. Proceso cancelado.")
             return
+        
         callback_progress("✅ Validando credenciales... (20%)")
-        # Validación de clientes
+
+        # Validación de clientes completos
         is_clients_zeus_completed, df_clientes_zeus = validate_completed_clients(username, password)
-        if is_clients_zeus_completed: #tiene que ser NOT (pero para hacer pruebas se lo sacamos porque no esta completo el API)
+
+        if is_clients_zeus_completed:
             messagebox.showerror("Advertencia", "Se encontraron clientes incompletos. El archivo de control interno no se generó.")
             return
         else:

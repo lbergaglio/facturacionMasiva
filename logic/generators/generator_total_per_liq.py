@@ -1,8 +1,9 @@
 import pandas as pd
 
-# === Agrupación por número de liquidación ===
+# Genero dataframe de total agrupado por liquidaciones
 def generate_page_total_per_liq(df_total, tipo_cambio):
     
+    # Agrupo el dataframe por liquidaciones y lo asigno a df_agrupado
     df_agrupado = df_total.groupby("Número de Liquidacion").agg({
         'Monto': 'sum',
         'Moneda de Liquidación': 'first',
@@ -11,9 +12,9 @@ def generate_page_total_per_liq(df_total, tipo_cambio):
         'Tipo de Factura': 'first',
     }).reset_index()
 
-    # === Construcción hoja "total agrupado por liquidacion" ===
     mapa_id_a_cliente = df_total.set_index('id')['Cliente'].to_dict()
 
+    # Asingo valores a cada columna
     df_agrupado['Cuenta'] = df_agrupado['id'].map(mapa_id_a_cliente)
     df_agrupado['Número de Factura'] = df_agrupado['Número de Liquidacion']
     df_agrupado['Fecha de Factura'] = pd.to_datetime(df_agrupado['Fecha de Liquidación'], errors='coerce')
@@ -28,7 +29,7 @@ def generate_page_total_per_liq(df_total, tipo_cambio):
     df_agrupado['Exported'] = "false"
     df_agrupado['Centro de Facturación'] = "EANA CENTRAL"
 
-
+    # Renombro columnas para mayor interpretación
     columnas_finales_es = [
         'Cuenta', 'Número de Factura', 'Fecha de Factura', 'Tipo de Factura', 'Estado', 'Vencimiento de Pago',
         'Creado Por', 'Monto de la Factura', 'Moneda', 'Tasa de Cambio a USD',

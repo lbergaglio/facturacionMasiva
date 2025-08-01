@@ -2,12 +2,14 @@
 import requests
 import pandas as pd
 
+# Columnas mandatorias necesarias para la validación del maetro de clientes ZEUS ERP
 MANDATORY_COLUMNS = ["codigo_cliente", "razon_social", "codigo_localidad", "codigo_provincia", 
                      "codigo_iva", "codigo_condicion_venta", "lista_precio"]
 
+# Columnas necesarias para la posterior importación masiva en ZEUS ERP
 DATAFRAME_CLIENTS_COLUMNS = ["codigo_cliente","codigo_deposito","codigo_condicion_venta","lista_precio"]
 
-
+# Función para obtener los datos de clientes de ZEUS ERP
 def validate_completed_columns(df, columns):
     incomplete = []
 
@@ -20,7 +22,7 @@ def validate_completed_columns(df, columns):
                 incomplete.append(f"⚠️ Valores vacíos en columna: {col}")
     return incomplete
 
-# === Paso 2: Consulta al endpoint /cliente ===
+# Consulta al endpoint /cliente
 def validate_completed_clients(username, password):
     # Reemplazar mis datos
     auth_url = "https://auth.infosis.tech/authenticate?username={username}&password={password}".format(username=username, password=password)
@@ -35,26 +37,30 @@ def validate_completed_clients(username, password):
     else:
         raise Exception("❌ Error al generar token: " + auth_response.text)
     
-
+    # Datos necesarios para consulta api
     headers = {"Authorization": f"Bearer {access_token}"}
     endpoint = "/cliente"
     base_url = "https://api.infosis.tech/zeus"
     url = f"{base_url}{endpoint}"
 
+    # Hago la petición GET
     print(f"🔸 Consultando {url}")
     try:
         resp = requests.get(url, headers=headers)
         resp.raise_for_status()
         data = resp.json()
 
+        # Verifico que la respuesta tenga los datos esperados
         if isinstance(data, list) and data:
             df_clients_zeus = pd.json_normalize(data)
             missing_columns = validate_completed_columns(df_clients_zeus, MANDATORY_COLUMNS)
+            # Si no hay columnas faltantes, procedo a obtener los datos de clientes
             if missing_columns:
                 print("⚠️ Faltan columnas obligatorias en el DataFrame de clientes:")
                 df_clients_zeus = df_clients_zeus[DATAFRAME_CLIENTS_COLUMNS] #ESTE HAY QUE BORRARLO PARA EL FINAL
                 for msg in missing_columns:
                     print(msg)
+            # Si no hay columnas faltantes, procedo a obtener los datos de clientes
             else:
                 print("✅ Todas las columnas obligatorias están presentes en el DataFrame de clientes.")
                 df_clients_zeus = df_clients_zeus[DATAFRAME_CLIENTS_COLUMNS]
